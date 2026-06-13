@@ -224,7 +224,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   .mob-menu-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: var(--g1); border-radius: 8px; font-size: 17px; cursor: pointer; margin-right: 8px; flex-shrink: 0; }
 
   /* CONTENT */
-  .content { padding: 10px 12px 80px !important; overflow-y: auto; }
+  .content { padding: 10px 12px 70px !important; overflow-y: auto; }
 
   /* STATS 2 colunas */
   .sg { grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 12px; }
@@ -255,7 +255,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   .os-filtro-bar select { padding: 9px 8px; border: 1.5px solid var(--g2); border-radius: 8px; font-size: 11px; font-family: inherit; outline: none; background: #fff; }
 
   /* MODAIS: sobem da base */
-  .ov { padding: 0 !important; align-items: flex-end !important; }
+  .ov { padding: 0 !important; align-items: flex-end !important; z-index: 300 !important; }
   .mo, .mo-lg { width: 100% !important; max-width: 100% !important; border-radius: 16px 16px 0 0 !important; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .mob { padding: 0 14px !important; }
   .moh { padding: 16px 14px 0 !important; }
@@ -313,9 +313,9 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   .lsect { padding: 10px !important; }
 
   /* BOTTOM NAV */
-  .mob-nav-bar { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: var(--g); border-top: 2px solid rgba(255,255,255,.08); z-index: 500; padding: 6px 0 max(env(safe-area-inset-bottom),6px); }
-  .mob-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; cursor: pointer; color: rgba(255,255,255,.4); font-size: 9px; font-weight: 700; letter-spacing: .2px; border: none; background: none; font-family: inherit; }
-  .mob-nav-item .mn-ic { font-size: 22px; line-height: 1; }
+  .mob-nav-bar { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: var(--g); border-top: 2px solid rgba(255,255,255,.08); z-index: 150; padding: 6px 0 max(env(safe-area-inset-bottom),6px); }
+  .mob-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 2px; cursor: pointer; color: rgba(255,255,255,.4); font-size: 9px; font-weight: 700; letter-spacing: .2px; border: none; background: none; font-family: inherit; }
+  .mob-nav-item .mn-ic { font-size: 20px; line-height: 1; }
   .mob-nav-item.on { color: var(--t); }
   .mob-nav-item.on .mn-ic { filter: drop-shadow(0 0 3px rgba(146,67,16,.5)); }
 }
@@ -357,17 +357,11 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 
 <!-- Bottom nav mobile -->
 <div class="mob-nav-bar" id="mob-nav-bar">
-  <button class="mob-nav-item on" id="mn-dash" onclick="mobNav('dash',this)">
-    <span class="mn-ic">▦</span>Dashboard
-  </button>
-  <button class="mob-nav-item" id="mn-lista" onclick="mobNav('lista-mob',this)">
+  <button class="mob-nav-item on" id="mn-lista" onclick="mobNav('lista-mob',this)">
     <span class="mn-ic">☰</span>Serviços
   </button>
   <button class="mob-nav-item" id="mn-orc" onclick="mobNav('orc',this)">
     <span class="mn-ic">💰</span>Orçamentos
-  </button>
-  <button class="mob-nav-item" id="mn-equipe" onclick="mobNav('equipe',this)">
-    <span class="mn-ic">👷</span>Equipe
   </button>
   <button class="mob-nav-item" id="mn-mais" onclick="toggleSidebar()">
     <span class="mn-ic">⋯</span>Mais
