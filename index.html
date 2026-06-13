@@ -198,177 +198,133 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 ::-webkit-scrollbar-thumb{background:var(--g2);border-radius:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 
-/* ══════════ MOBILE ══════════ */
+
+/* ══════════════════════════════
+   MOBILE LAYOUT (≤768px)
+══════════════════════════════ */
 @media (max-width: 768px) {
   :root { --sb: 0px; }
   body { overflow: hidden; }
 
-  /* Sidebar vira gaveta deslizante */
-  .sb {
-    width: 260px !important;
-    transform: translateX(-100%);
-    transition: transform .25s ease;
-    z-index: 500;
-  }
-  .sb.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.4); }
-
-  /* Overlay escuro quando sidebar aberta */
-  .sb-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    z-index: 499;
-  }
+  /* SIDEBAR → gaveta */
+  .sb { width: 75vw; max-width: 280px; transform: translateX(-100%); transition: transform .25s ease; z-index: 600; }
+  .sb.open { transform: translateX(0); box-shadow: 6px 0 24px rgba(0,0,0,.5); }
+  .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 599; }
   .sb-overlay.on { display: block; }
 
-  /* Main ocupa tudo */
+  /* MAIN ocupa tudo */
   .main { margin-left: 0 !important; }
 
-  /* Topbar mobile */
-  .topbar {
-    padding: 0 12px;
-    height: 52px;
-  }
-  .tb-acts { gap: 6px; }
-  .tb-acts .btn { padding: 5px 9px; font-size: 10px; }
-  .tb-title { font-size: 14px; }
+  /* TOPBAR */
+  .topbar { padding: 0 10px; height: 50px; }
+  .tb-title { font-size: 13px; }
+  .tb-acts .btn { padding: 6px 10px; font-size: 10px; }
 
-  /* Botão hamburguer */
-  .mob-menu-btn {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border: none;
-    background: var(--g1);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    margin-right: 8px;
-    flex-shrink: 0;
-  }
+  /* Hamburguer */
+  .mob-menu-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: var(--g1); border-radius: 8px; font-size: 17px; cursor: pointer; margin-right: 8px; flex-shrink: 0; }
 
-  /* Content padding menor */
-  .content { padding: 12px; }
+  /* CONTENT */
+  .content { padding: 10px 12px 80px !important; overflow-y: auto; }
 
-  /* Stats em 2 colunas */
-  .sg { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-  .sv { font-size: 22px !important; }
-  .sl { font-size: 9px !important; }
+  /* STATS 2 colunas */
+  .sg { grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 12px; }
+  .sv { font-size: 20px !important; }
+  .chart-row { display: none !important; } /* oculta gráficos no mobile */
 
-  /* Charts empilhados */
-  .chart-row { grid-template-columns: 1fr !important; }
+  /* TABELA scroll */
+  .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+  th, td { padding: 8px 10px; font-size: 10px; }
 
-  /* Tabela scroll horizontal */
-  .tw { overflow-x: auto; }
-  table { min-width: 500px; }
+  /* KANBAN → desaparece, mostrado como lista */
+  .kb-page { display: none !important; }
 
-  /* Kanban: scroll horizontal, colunas menores */
-  .kb-toolbar { padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
-  .kb-toolbar .btn { padding: 5px 8px; font-size: 10px; }
-  #kb-search-q { width: 100px !important; }
-  .kb-inner { padding: 10px 12px; gap: 8px; }
-  .kcol { width: 200px !important; min-width: 200px !important; }
-  .kb-scroll { height: calc(100vh - 170px); }
+  /* LISTA MOBILE de OS */
+  #p-lista-mob { display: block; }
+  .os-list-item { background: #fff; border-radius: 10px; border: 1.5px solid var(--g2); padding: 12px; margin-bottom: 8px; cursor: pointer; }
+  .os-list-item:active { background: var(--g1); }
+  .os-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .os-list-title { font-size: 12px; font-weight: 800; color: var(--g8); }
+  .os-list-sub { font-size: 10px; color: var(--g6); margin-bottom: 4px; }
+  .os-list-col { display: inline-block; font-size: 9px; font-weight: 700; background: var(--g1); color: var(--g6); border-radius: 20px; padding: 2px 8px; margin-top: 3px; }
+  .os-etapa-sel { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; -webkit-overflow-scrolling: touch; }
+  .os-etapa-btn { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; border: 1.5px solid var(--g2); background: #fff; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .os-etapa-btn.on { background: var(--g); color: #fff; border-color: var(--g); }
+  .os-filtro-bar { display: flex; gap: 6px; margin-bottom: 10px; }
+  .os-filtro-bar input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--g2); border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; }
+  .os-filtro-bar select { padding: 9px 8px; border: 1.5px solid var(--g2); border-radius: 8px; font-size: 11px; font-family: inherit; outline: none; background: #fff; }
 
-  /* Modais full screen no mobile */
+  /* MODAIS: sobem da base */
   .ov { padding: 0 !important; align-items: flex-end !important; }
-  .mo, .mo-lg {
-    width: 100% !important;
-    max-width: 100% !important;
-    border-radius: 16px 16px 0 0 !important;
-    max-height: 92vh;
-    overflow-y: auto;
-  }
+  .mo, .mo-lg { width: 100% !important; max-width: 100% !important; border-radius: 16px 16px 0 0 !important; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .mob { padding: 0 14px !important; }
   .moh { padding: 16px 14px 0 !important; }
-  .mof { padding: 12px 14px !important; flex-wrap: wrap; gap: 6px; }
+  .mof { padding: 12px 14px 16px !important; flex-wrap: wrap; gap: 6px; position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--g2); }
   .det-h { border-radius: 14px 14px 0 0 !important; padding: 14px !important; }
-  .det-hi { font-size: 14px !important; }
+  .det-hi { font-size: 13px !important; line-height: 1.3; }
 
-  /* Formulários */
+  /* FORMS */
   .fr, .fr3 { grid-template-columns: 1fr !important; }
-  .fi, .fs, .ft { font-size: 14px !important; padding: 10px 12px !important; }
-  .fi:focus, .fs:focus, .ft:focus { font-size: 14px; }
+  .fi, .fs, .ft { font-size: 16px !important; padding: 11px 12px !important; border-radius: 8px; }
+  .lb { font-size: 11px !important; }
+  .fsect { font-size: 10px !important; }
 
-  /* Botões maiores para toque */
-  .btn { min-height: 36px; }
-  .bp, .bgr, .bg { padding: 8px 14px; font-size: 11px; }
-  .bsm { padding: 7px 12px !important; font-size: 10px !important; }
-  .bxs { padding: 5px 9px !important; font-size: 10px !important; }
+  /* BOTÕES maiores para toque */
+  .btn { min-height: 40px !important; font-size: 12px !important; border-radius: 8px !important; }
+  .bp { padding: 10px 16px !important; }
+  .bg { padding: 10px 14px !important; }
+  .bgr { padding: 10px 14px !important; }
+  .bsm { padding: 9px 13px !important; font-size: 11px !important; }
+  .bxs { padding: 6px 10px !important; font-size: 10px !important; }
 
-  /* Nav itens maiores */
-  .ni { padding: 12px 16px !important; font-size: 13px !important; }
-  .ni-ic { font-size: 17px !important; }
+  /* TABS scroll */
+  .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .tab { white-space: nowrap; padding: 10px 14px; font-size: 12px; }
+  .tabc { padding-bottom: 20px; }
 
-  /* Tabs scroll */
-  .tabs { overflow-x: auto; flex-wrap: nowrap; }
-  .tab { white-space: nowrap; padding: 8px 12px; }
+  /* DOC buttons maiores */
+  .doc-btn-row { gap: 8px; }
+  .doc-big { padding: 14px 8px !important; font-size: 11px !important; border-radius: 10px !important; }
+  .doc-big span { font-size: 10px !important; }
 
-  /* Orçamento itens */
-  .oi-head { display: none; }
-  .oi-row { grid-template-columns: 20px 1fr !important; flex-wrap: wrap; }
-  .oi-tot { text-align: left !important; }
+  /* Fotos */
+  .foto-drop { padding: 16px !important; }
+  .foto-grid { grid-template-columns: repeat(3,1fr) !important; gap: 6px; }
 
-  /* Fotos grid */
-  .foto-grid { grid-template-columns: repeat(3, 1fr) !important; }
-
-  /* Etiquetas */
+  /* ETIQUETAS */
   .etq-wrap { gap: 6px; }
-  .etq-btn { padding: 5px 10px; font-size: 10px; }
+  .etq-btn { padding: 6px 12px !important; font-size: 10px !important; }
 
-  /* Urgency row */
-  .urg-row { flex-wrap: wrap; }
-  .uopt { padding: 8px 6px; font-size: 10px; min-width: 60px; }
+  /* URGÊNCIA */
+  .urg-row { flex-wrap: wrap; gap: 6px; }
+  .uopt { padding: 9px 8px !important; font-size: 10px !important; min-width: 55px; flex: none !important; }
 
-  /* Move wrap */
-  .move-wrap { max-height: 120px; overflow-y: auto; }
+  /* ORÇAMENTO itens: simplifica */
+  .oi-head { font-size: 7px !important; }
+  .oi-head span { padding: 2px !important; }
+  .oi-row { font-size: 9px !important; }
+  .oi-in { font-size: 12px !important; padding: 6px !important; }
 
-  /* Bottom nav bar mobile */
-  .mob-nav-bar {
-    display: flex !important;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--g);
-    border-top: 1px solid rgba(255,255,255,.1);
-    z-index: 400;
-    padding: 6px 0 env(safe-area-inset-bottom, 6px);
-  }
-  .mob-nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 6px 4px;
-    cursor: pointer;
-    color: rgba(255,255,255,.45);
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .3px;
-    border: none;
-    background: none;
-    font-family: inherit;
-    transition: color .1s;
-  }
+  /* MOVE wrap */
+  .move-wrap { max-height: 140px; overflow-y: auto; -webkit-overflow-scrolling: touch; gap: 5px; }
+  .move-wrap .btn { font-size: 9px !important; padding: 5px 8px !important; min-height: 30px !important; }
+
+  /* LSECT */
+  .lsect { padding: 10px !important; }
+
+  /* BOTTOM NAV */
+  .mob-nav-bar { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; background: var(--g); border-top: 2px solid rgba(255,255,255,.08); z-index: 500; padding: 6px 0 max(env(safe-area-inset-bottom),6px); }
+  .mob-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; cursor: pointer; color: rgba(255,255,255,.4); font-size: 9px; font-weight: 700; letter-spacing: .2px; border: none; background: none; font-family: inherit; }
+  .mob-nav-item .mn-ic { font-size: 22px; line-height: 1; }
   .mob-nav-item.on { color: var(--t); }
-  .mob-nav-item span { font-size: 20px; }
-
-  /* Extra space for bottom nav */
-  .content { padding-bottom: 70px !important; }
-  .kb-scroll { height: calc(100vh - 180px) !important; overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch !important; cursor: default !important; }
-  .kb-inner { min-width: max-content; }
+  .mob-nav-item.on .mn-ic { filter: drop-shadow(0 0 3px rgba(146,67,16,.5)); }
 }
 
 @media (min-width: 769px) {
   .mob-menu-btn { display: none !important; }
   .mob-nav-bar { display: none !important; }
   .sb-overlay { display: none !important; }
+  #p-lista-mob { display: none !important; }
 }
 
 </style>
@@ -401,11 +357,21 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 
 <!-- Bottom nav mobile -->
 <div class="mob-nav-bar" id="mob-nav-bar">
-  <button class="mob-nav-item on" id="mn-dash" onclick="mobNav('dash',this)"><span>▦</span>Dashboard</button>
-  <button class="mob-nav-item" id="mn-kanban" onclick="mobNav('kanban',this)"><span>☰</span>Serviços</button>
-  <button class="mob-nav-item" id="mn-orc" onclick="mobNav('orc',this)"><span>💰</span>Orçamentos</button>
-  <button class="mob-nav-item" id="mn-equipe" onclick="mobNav('equipe',this)"><span>👷</span>Equipe</button>
-  <button class="mob-nav-item" id="mn-mais" onclick="toggleSidebar()"><span>⋯</span>Mais</button>
+  <button class="mob-nav-item on" id="mn-dash" onclick="mobNav('dash',this)">
+    <span class="mn-ic">▦</span>Dashboard
+  </button>
+  <button class="mob-nav-item" id="mn-lista" onclick="mobNav('lista-mob',this)">
+    <span class="mn-ic">☰</span>Serviços
+  </button>
+  <button class="mob-nav-item" id="mn-orc" onclick="mobNav('orc',this)">
+    <span class="mn-ic">💰</span>Orçamentos
+  </button>
+  <button class="mob-nav-item" id="mn-equipe" onclick="mobNav('equipe',this)">
+    <span class="mn-ic">👷</span>Equipe
+  </button>
+  <button class="mob-nav-item" id="mn-mais" onclick="toggleSidebar()">
+    <span class="mn-ic">⋯</span>Mais
+  </button>
 </div>
 
 <div class="main">
@@ -483,6 +449,16 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   <div class="kb-scroll" id="kb-scroll">
     <div class="kb-inner" id="kanban"></div>
   </div>
+</div>
+
+<!-- LISTA MOBILE OS -->
+<div class="content page" id="p-lista-mob" style="display:none">
+  <div class="os-filtro-bar">
+    <input id="mob-os-q" placeholder="🔍 Buscar OS..." oninput="rListaMob()"/>
+    <select id="mob-os-tipo" onchange="rListaMob()"><option value="">Todos</option><option value="MNT">MNT</option><option value="RSC">RSC</option></select>
+  </div>
+  <div class="os-etapa-sel" id="mob-etapa-sel"></div>
+  <div id="mob-os-lista"></div>
 </div>
 
 <!-- ORÇAMENTOS -->
@@ -2071,35 +2047,92 @@ function processTrelloFile(file){
 
 
 // ── MOBILE ──
+const isMob = () => window.innerWidth <= 768;
+
 function toggleSidebar() {
-  const sb = document.querySelector('.sb');
-  const ov = gi('sb-overlay');
-  sb.classList.toggle('open');
-  ov.classList.toggle('on');
+  document.querySelector('.sb')?.classList.toggle('open');
+  gi('sb-overlay')?.classList.toggle('on');
 }
 function closeSidebar() {
   document.querySelector('.sb')?.classList.remove('open');
   gi('sb-overlay')?.classList.remove('on');
 }
+
+let mobEtapaFiltro = 'all';
+function rListaMob() {
+  const q = (gi('mob-os-q')?.value || '').toLowerCase();
+  const tipo = gi('mob-os-tipo')?.value || '';
+  let all = cols.flatMap(c => c.cards).filter(c => !c.arquivado);
+  if(tipo) all = all.filter(c => c.tipo === tipo);
+  if(mobEtapaFiltro !== 'all') all = all.filter(c => getCardCol(c.id)?.name === mobEtapaFiltro);
+  if(q) all = all.filter(c => ((c.nome||'')+(c.predio||'')+(c.numimov||'')+(c.ticket||'')+(c.imob||'')).toLowerCase().includes(q));
+
+  // Etapa filter bar
+  const etapas = ['all', ...cols.map(c => c.name)];
+  gi('mob-etapa-sel').innerHTML = etapas.map(e =>
+    `<button class="os-etapa-btn${e===mobEtapaFiltro?' on':''}" onclick="setMobEtapa('${e}')">${e==='all'?'Todas':e}</button>`
+  ).join('');
+
+  const urgDot = u => `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${URGCOR[u]||'#d1d5db'};margin-right:4px"></span>`;
+  gi('mob-os-lista').innerHTML = all.length ? all.map(c => {
+    const col = getCardCol(c.id);
+    const etqsH = c.etqs.slice(0,3).map(eid => {
+      const e = etqGlobal.find(x=>x.id===eid);
+      return e ? `<span style="display:inline-block;width:22px;height:5px;border-radius:3px;background:${e.cor};margin-right:2px"></span>` : '';
+    }).join('');
+    return `<div class="os-list-item" onclick="verCard('${c.id}')">
+      <div class="os-list-header">
+        <div>
+          ${etqsH}
+          <span class="badge ${c.tipo==='MNT'?'b-mnt':'b-rsc'}" style="font-size:8px;padding:1px 6px">${c.tipo}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:3px">${urgDot(c.urg)}<span style="font-size:9px;color:var(--g4)">${URGTXT[c.urg]||''}</span></div>
+      </div>
+      <div class="os-list-title">${c.ticket||c.numimov}</div>
+      <div class="os-list-sub">🏢 ${c.predio||'—'} &nbsp;·&nbsp; 👤 ${c.nome}</div>
+      <div class="os-list-sub">📱 ${c.imob||'—'}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+        <span class="os-list-col">${col?.name||'—'}</span>
+        <span style="font-size:9px;color:var(--g4)">${c.criadoEm||''}</span>
+      </div>
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:30px;color:var(--g4);font-size:12px">Nenhuma OS encontrada.</div>';
+}
+function setMobEtapa(e) { mobEtapaFiltro = e; rListaMob(); }
+
 function mobNav(p, el) {
   document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
   el.classList.add('on');
-  nav(p, document.querySelectorAll('.ni')[['dash','kanban','orc','equipe'].indexOf(p)]);
+  // For lista-mob, show that page but use sidebar nav for others
+  if(p === 'lista-mob') {
+    document.querySelectorAll('.page,.kb-page').forEach(x => x.classList.remove('on'));
+    gi('p-lista-mob').classList.add('on');
+    gi('tb-title').textContent = 'Serviços';
+    rListaMob();
+  } else {
+    const idx = ['dash','kanban','orc','equipe','importar'].indexOf(p);
+    nav(p, document.querySelectorAll('.ni')[idx >= 0 ? idx : 0]);
+  }
   closeSidebar();
 }
+
 // Patch nav to sync bottom bar
 const _origNav = nav;
 nav = function(p, el) {
   _origNav(p, el);
-  const map = {dash:'mn-dash', kanban:'mn-kanban', orc:'mn-orc', equipe:'mn-equipe'};
-  document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
-  if(map[p]) gi(map[p])?.classList.add('on');
+  if(isMob()) {
+    const map = {dash:'mn-dash', orc:'mn-orc', equipe:'mn-equipe'};
+    document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
+    if(map[p]) gi(map[p])?.classList.add('on');
+  }
   closeSidebar();
 };
-// Close sidebar when clicking nav item
-document.querySelectorAll('.ni').forEach(el => {
-  el.addEventListener('click', closeSidebar);
-});
+
+// Also patch rDash/rKanban to refresh lista
+const _origRDash = rDash;
+rDash = function() { _origRDash(); if(isMob() && gi('p-lista-mob')?.classList.contains('on')) rListaMob(); };
+
+document.querySelectorAll('.ni').forEach(el => el.addEventListener('click', closeSidebar));
 
 // ── INIT ──
 // (init handled by carregarNuvem below)
