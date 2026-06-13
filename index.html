@@ -84,7 +84,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 .kb-page{display:none;flex-direction:column;height:calc(100vh - 50px);overflow:hidden;}
 .kb-page.on{display:flex;}
 .kb-toolbar{padding:12px 20px 10px;background:var(--g1);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.kb-scroll{flex:1;overflow:hidden;cursor:grab;user-select:none;}
+.kb-scroll{flex:1;overflow-x:auto;overflow-y:hidden;cursor:grab;user-select:none;-webkit-overflow-scrolling:touch;}
 .kb-scroll.grabbing{cursor:grabbing;}
 .kb-inner{display:flex;gap:10px;padding:14px 20px;align-items:flex-start;min-width:max-content;min-height:100%;}
 
@@ -361,7 +361,8 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 
   /* Extra space for bottom nav */
   .content { padding-bottom: 70px !important; }
-  .kb-scroll { height: calc(100vh - 180px) !important; }
+  .kb-scroll { height: calc(100vh - 180px) !important; overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch !important; cursor: default !important; }
+  .kb-inner { min-width: max-content; }
 }
 
 @media (min-width: 769px) {
@@ -902,8 +903,10 @@ function ini(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpp
 // ── KANBAN SCROLL (arrastar board) ──
 (()=>{
   const el=gi('kb-scroll');
+  const isMobile=()=>window.innerWidth<=768;
   let drag=false,sx=0,sy=0,sl=0,st=0;
   el.addEventListener('mousedown',e=>{
+    if(isMobile())return;
     if(e.target.classList.contains('kcard')||e.target.closest('.kcard'))return;
     drag=true;sx=e.clientX;sy=e.clientY;sl=el.scrollLeft;st=el.scrollTop;
     el.classList.add('grabbing');e.preventDefault();
@@ -914,7 +917,7 @@ function ini(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpp
     el.scrollTop=st-(e.clientY-sy);
   });
   document.addEventListener('mouseup',()=>{drag=false;el.classList.remove('grabbing');});
-  el.addEventListener('wheel',e=>{e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
+  el.addEventListener('wheel',e=>{if(isMobile())return;e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
 })();
 
 // ── DRAG & DROP CARDS ──
