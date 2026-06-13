@@ -219,7 +219,8 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   </div>
   <div class="sb-user">
     <div class="uav">GC</div>
-    <div><div class="un">Gideão Conrado</div><div class="ur">Administrador</div></div>
+    <div style="flex:1"><div class="un">Gideão Conrado</div><div class="ur">Administrador</div></div>
+    <div id="sync-ind" style="font-size:9px;color:rgba(255,255,255,.4);margin-left:4px;">☁️ Sync</div>
   </div>
 </aside>
 
@@ -1882,7 +1883,118 @@ function processTrelloFile(file){
 }
 
 // ── INIT ──
-rDash();
+// (init handled by carregarNuvem below)
+// rDash(); -- called after cloud load
+
+
+// ── SUPABASE CLOUD SYNC ──
+const SUPA_URL = 'https://ysnzdgnwnecukigklwlz.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzbnpkZ253bmVjdWtpZ2tsd2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNzI4NzcsImV4cCI6MjA5Njk0ODg3N30.MA-3VBYnOkxWC3YlZ2gtWz03gP3NF4OQ7iKSRqZ5Dvk';
+let syncTimer = null;
+let ultimoSalvo = null;
+
+async function supaGet(chave) {
+  try {
+    const r = await fetch(SUPA_URL + '/rest/v1/hf_config?chave=eq.' + chave + '&select=valor', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const d = await r.json();
+    return (d && d[0]) ? d[0].valor : null;
+  } catch(e) { return null; }
+}
+
+async function supaSet(chave, valor) {
+  try {
+    await fetch(SUPA_URL + '/rest/v1/hf_config', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ chave, valor })
+    });
+  } catch(e) { console.error('Erro ao salvar na nuvem:', e); }
+}
+
+function agendarSalvamento() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(salvarNuvem, 2000);
+}
+
+async function salvarNuvem() {
+  const dados = JSON.stringify({
+    cols, orcs, techs, etqGlobal,
+    orcCnt, cardCnt, etqCnt,
+    _ts: Date.now()
+  });
+  if(dados === ultimoSalvo) return;
+  ultimoSalvo = dados;
+  await supaSet('homefix_dados', dados);
+  const ind = gi('sync-ind');
+  if(ind) { ind.textContent = '☁️ Salvo'; ind.style.color = '#1e7a45'; setTimeout(()=>{ if(ind)ind.textContent='☁️ Sync'; ind.style.color='rgba(255,255,255,.4)'; }, 2000); }
+}
+
+async function carregarNuvem() {
+  const ind = gi('sync-ind');
+  if(ind) { ind.textContent = '⏳ Carregando...'; ind.style.color = 'rgba(255,255,255,.7)'; }
+  const raw = await supaGet('homefix_dados');
+  if(raw) {
+    try {
+      const d = JSON.parse(raw);
+      if(d.cols) cols = d.cols;
+      if(d.orcs) orcs = d.orcs;
+      if(d.techs) techs = d.techs;
+      if(d.etqGlobal) etqGlobal = d.etqGlobal;
+      if(d.orcCnt) orcCnt = d.orcCnt;
+      if(d.cardCnt) cardCnt = d.cardCnt;
+      if(d.etqCnt) etqCnt = d.etqCnt;
+      ultimoSalvo = JSON.stringify({cols,orcs,techs,etqGlobal,orcCnt,cardCnt,etqCnt,_ts:d._ts});
+      if(ind) { ind.textContent = '☁️ Sync'; ind.style.color = 'rgba(255,255,255,.4)'; }
+      return true;
+    } catch(e) { console.error('Erro ao carregar dados:', e); }
+  }
+  if(ind) { ind.textContent = '☁️ Novo'; ind.style.color = 'rgba(255,255,255,.4)'; }
+  return false;
+}
+
+// Patch all write operations to auto-save
+const _origSalvarOS = salvarOS;
+salvarOS = function() { _origSalvarOS.apply(this, arguments); agendarSalvamento(); };
+const _origSalvarOrc = salvarOrc;
+salvarOrc = function() { _origSalvarOrc.apply(this, arguments); agendarSalvamento(); };
+const _origMoverCard = moverCard;
+moverCard = function() { _origMoverCard.apply(this, arguments); agendarSalvamento(); };
+const _origAddComent = addComent;
+addComent = function() { _origAddComent.apply(this, arguments); agendarSalvamento(); };
+const _origDelCard = delCard;
+delCard = function() { _origDelCard.apply(this, arguments); agendarSalvamento(); };
+const _origArquivarCard = arquivarCard;
+arquivarCard = function() { _origArquivarCard.apply(this, arguments); agendarSalvamento(); };
+const _origSalvarDoc = salvarDoc;
+salvarDoc = function() { _origSalvarDoc.apply(this, arguments); agendarSalvamento(); };
+const _origSalvarEdicao = salvarEdicao;
+salvarEdicao = function() { _origSalvarEdicao.apply(this, arguments); agendarSalvamento(); };
+const _origAddCol = addCol;
+addCol = function() { _origAddCol.apply(this, arguments); agendarSalvamento(); };
+const _origDelCol = delCol;
+delCol = function() { _origDelCol.apply(this, arguments); agendarSalvamento(); };
+const _origSalvarTech = salvarTech;
+salvarTech = function() { _origSalvarTech.apply(this, arguments); agendarSalvamento(); };
+const _origCriarEtq = criarEtq;
+criarEtq = function() { _origCriarEtq.apply(this, arguments); agendarSalvamento(); };
+const _origSalvarEtqs = salvarEtqs;
+salvarEtqs = function() { _origSalvarEtqs.apply(this, arguments); agendarSalvamento(); };
+
+// Sync a cada 30s em background
+setInterval(salvarNuvem, 30000);
+
+// Inicializar
+(async function init() {
+  const carregou = await carregarNuvem();
+  rDash();
+  if(carregou) { rKanban(); rOrcs(); rEquipe(); }
+})();
+
 </script>
 </body>
 </html>
