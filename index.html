@@ -197,6 +197,179 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-thumb{background:var(--g2);border-radius:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
+
+/* ══════════ MOBILE ══════════ */
+@media (max-width: 768px) {
+  :root { --sb: 0px; }
+  body { overflow: hidden; }
+
+  /* Sidebar vira gaveta deslizante */
+  .sb {
+    width: 260px !important;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 500;
+  }
+  .sb.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.4); }
+
+  /* Overlay escuro quando sidebar aberta */
+  .sb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 499;
+  }
+  .sb-overlay.on { display: block; }
+
+  /* Main ocupa tudo */
+  .main { margin-left: 0 !important; }
+
+  /* Topbar mobile */
+  .topbar {
+    padding: 0 12px;
+    height: 52px;
+  }
+  .tb-acts { gap: 6px; }
+  .tb-acts .btn { padding: 5px 9px; font-size: 10px; }
+  .tb-title { font-size: 14px; }
+
+  /* Botão hamburguer */
+  .mob-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: var(--g1);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Content padding menor */
+  .content { padding: 12px; }
+
+  /* Stats em 2 colunas */
+  .sg { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .sv { font-size: 22px !important; }
+  .sl { font-size: 9px !important; }
+
+  /* Charts empilhados */
+  .chart-row { grid-template-columns: 1fr !important; }
+
+  /* Tabela scroll horizontal */
+  .tw { overflow-x: auto; }
+  table { min-width: 500px; }
+
+  /* Kanban: scroll horizontal, colunas menores */
+  .kb-toolbar { padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+  .kb-toolbar .btn { padding: 5px 8px; font-size: 10px; }
+  #kb-search-q { width: 100px !important; }
+  .kb-inner { padding: 10px 12px; gap: 8px; }
+  .kcol { width: 200px !important; min-width: 200px !important; }
+  .kb-scroll { height: calc(100vh - 170px); }
+
+  /* Modais full screen no mobile */
+  .ov { padding: 0 !important; align-items: flex-end !important; }
+  .mo, .mo-lg {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .mob { padding: 0 14px !important; }
+  .moh { padding: 16px 14px 0 !important; }
+  .mof { padding: 12px 14px !important; flex-wrap: wrap; gap: 6px; }
+  .det-h { border-radius: 14px 14px 0 0 !important; padding: 14px !important; }
+  .det-hi { font-size: 14px !important; }
+
+  /* Formulários */
+  .fr, .fr3 { grid-template-columns: 1fr !important; }
+  .fi, .fs, .ft { font-size: 14px !important; padding: 10px 12px !important; }
+  .fi:focus, .fs:focus, .ft:focus { font-size: 14px; }
+
+  /* Botões maiores para toque */
+  .btn { min-height: 36px; }
+  .bp, .bgr, .bg { padding: 8px 14px; font-size: 11px; }
+  .bsm { padding: 7px 12px !important; font-size: 10px !important; }
+  .bxs { padding: 5px 9px !important; font-size: 10px !important; }
+
+  /* Nav itens maiores */
+  .ni { padding: 12px 16px !important; font-size: 13px !important; }
+  .ni-ic { font-size: 17px !important; }
+
+  /* Tabs scroll */
+  .tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .tab { white-space: nowrap; padding: 8px 12px; }
+
+  /* Orçamento itens */
+  .oi-head { display: none; }
+  .oi-row { grid-template-columns: 20px 1fr !important; flex-wrap: wrap; }
+  .oi-tot { text-align: left !important; }
+
+  /* Fotos grid */
+  .foto-grid { grid-template-columns: repeat(3, 1fr) !important; }
+
+  /* Etiquetas */
+  .etq-wrap { gap: 6px; }
+  .etq-btn { padding: 5px 10px; font-size: 10px; }
+
+  /* Urgency row */
+  .urg-row { flex-wrap: wrap; }
+  .uopt { padding: 8px 6px; font-size: 10px; min-width: 60px; }
+
+  /* Move wrap */
+  .move-wrap { max-height: 120px; overflow-y: auto; }
+
+  /* Bottom nav bar mobile */
+  .mob-nav-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--g);
+    border-top: 1px solid rgba(255,255,255,.1);
+    z-index: 400;
+    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  }
+  .mob-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    cursor: pointer;
+    color: rgba(255,255,255,.45);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    transition: color .1s;
+  }
+  .mob-nav-item.on { color: var(--t); }
+  .mob-nav-item span { font-size: 20px; }
+
+  /* Extra space for bottom nav */
+  .content { padding-bottom: 70px !important; }
+  .kb-scroll { height: calc(100vh - 180px) !important; }
+}
+
+@media (min-width: 769px) {
+  .mob-menu-btn { display: none !important; }
+  .mob-nav-bar { display: none !important; }
+  .sb-overlay { display: none !important; }
+}
+
 </style>
 </head>
 <body>
@@ -223,9 +396,20 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     <div id="sync-ind" style="font-size:9px;color:rgba(255,255,255,.4);margin-left:4px;">☁️ Sync</div>
   </div>
 </aside>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Bottom nav mobile -->
+<div class="mob-nav-bar" id="mob-nav-bar">
+  <button class="mob-nav-item on" id="mn-dash" onclick="mobNav('dash',this)"><span>▦</span>Dashboard</button>
+  <button class="mob-nav-item" id="mn-kanban" onclick="mobNav('kanban',this)"><span>☰</span>Serviços</button>
+  <button class="mob-nav-item" id="mn-orc" onclick="mobNav('orc',this)"><span>💰</span>Orçamentos</button>
+  <button class="mob-nav-item" id="mn-equipe" onclick="mobNav('equipe',this)"><span>👷</span>Equipe</button>
+  <button class="mob-nav-item" id="mn-mais" onclick="toggleSidebar()"><span>⋯</span>Mais</button>
+</div>
 
 <div class="main">
 <div class="topbar">
+  <button class="mob-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
   <div class="tb-title" id="tb-title">Dashboard</div>
   <div class="tb-acts">
     <button class="btn bg bsm" onclick="nav('orc',null);setTimeout(abrirOrc,80)">+ Orçamento</button>
@@ -1881,6 +2065,38 @@ function processTrelloFile(file){
     }
   };reader.readAsText(file);
 }
+
+
+// ── MOBILE ──
+function toggleSidebar() {
+  const sb = document.querySelector('.sb');
+  const ov = gi('sb-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('on');
+}
+function closeSidebar() {
+  document.querySelector('.sb')?.classList.remove('open');
+  gi('sb-overlay')?.classList.remove('on');
+}
+function mobNav(p, el) {
+  document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  nav(p, document.querySelectorAll('.ni')[['dash','kanban','orc','equipe'].indexOf(p)]);
+  closeSidebar();
+}
+// Patch nav to sync bottom bar
+const _origNav = nav;
+nav = function(p, el) {
+  _origNav(p, el);
+  const map = {dash:'mn-dash', kanban:'mn-kanban', orc:'mn-orc', equipe:'mn-equipe'};
+  document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
+  if(map[p]) gi(map[p])?.classList.add('on');
+  closeSidebar();
+};
+// Close sidebar when clicking nav item
+document.querySelectorAll('.ni').forEach(el => {
+  el.addEventListener('click', closeSidebar);
+});
 
 // ── INIT ──
 // (init handled by carregarNuvem below)
