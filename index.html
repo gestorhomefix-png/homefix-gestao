@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HomeFix — Gestão</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --g:#373d31;--gl:#4a5243;--t:#924310;--br:#724223;
+  --cr:#f5ece2;--g1:#f6f4f0;--g2:#eae7e1;--g3:#d5d1c8;
+  --g4:#a8a49b;--g6:#6b6860;--g8:#2c2a27;
+  --red:#c0392b;--ye:#c9870a;--bl:#1a6fa8;--su:#1e7a45;--sb:220px;
+}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--g1);color:var(--g8);height:100vh;display:flex;overflow:hidden;}
+.sb{width:var(--sb);height:100vh;background:var(--g);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.09);}
+.sb-logo-row{display:flex;align-items:center;gap:9px;}
+.sb-icon{width:32px;height:32px;background:var(--t);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0;}
+.sb-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.2px;margin-top:1px;}
+.sb-nav{padding:8px 0;flex:1;}
+.sb-sec{font-size:9px;text-transform:uppercase;letter-spacing:1.3px;color:rgba(255,255,255,.28);padding:10px 16px 4px;font-weight:700;}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;color:rgba(255,255,255,.55);font-size:12px;font-weight:600;border-left:3px solid transparent;transition:all .12s;user-select:none;}
+.ni:hover{background:rgba(255,255,255,.07);color:#fff;}
+.ni.on{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--t);}
+.ni-ic{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+.nb{margin-left:auto;background:var(--t);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:20px;}
+.sb-user{padding:12px 16px;border-top:1px solid rgba(255,255,255,.09);display:flex;align-items:center;gap:9px;}
+.uav{width:30px;height:30px;background:var(--t);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
+.un{font-size:12px;font-weight:700;color:#fff;}
+.ur{font-size:9px;color:rgba(255,255,255,.35);}
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{height:50px;background:#fff;border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;z-index:50;}
+.tb-title{font-size:15px;font-weight:800;color:var(--g8);}
+.tb-acts{display:flex;align-items:center;gap:8px;}
+.btn{padding:6px 13px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:5px;transition:all .12s;font-family:inherit;}
+.bp{background:var(--t);color:#fff;}.bp:hover{background:var(--br);}
+.bg{background:transparent;color:var(--g6);border:1.5px solid var(--g2);}.bg:hover{border-color:var(--g3);color:var(--g8);}
+.bgr{background:var(--g);color:#fff;}.bgr:hover{background:var(--gl);}
+.bsu{background:var(--su);color:#fff;}
+.bsm{padding:5px 11px;font-size:10px;}
+.bxs{padding:3px 8px;font-size:10px;}
+.content{flex:1;overflow-y:auto;padding:20px;}
+.page{display:none;}.page.on{display:block;animation:fi .15s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.sc{background:#fff;border-radius:10px;padding:15px 17px;border:1px solid var(--g2);position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.sc.ct::before{background:var(--t)}.sc.cy::before{background:var(--ye)}.sc.cg::before{background:var(--g)}.sc.cb::before{background:var(--bl)}
+.sl{font-size:10px;color:var(--g6);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.sv{font-size:26px;font-weight:900;color:var(--g8);line-height:1;margin-bottom:3px;}
+.ss{font-size:10px;color:var(--g4);}
+.tw{background:#fff;border-radius:10px;border:1px solid var(--g2);overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--g1);}
+th{font-size:10px;font-weight:800;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:left;white-space:nowrap;}
+td{font-size:11px;color:var(--g8);padding:10px 12px;border-top:1px solid var(--g2);vertical-align:middle;}
+tr.rl:hover td{background:var(--g1);cursor:pointer;}
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.2px;}
+.b-mnt{background:#dbeafe;color:#1d4ed8;}.b-rsc{background:#f3e8ff;color:#7c3aed;}
+.b-at{background:#fee2e2;color:#b91c1c;}.b-ap{background:#d1fae5;color:#065f46;}
+.b-an{background:#fde68a;color:#78350f;}.b-fi{background:#d1fae5;color:#14532d;}
+.sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.st{font-size:14px;font-weight:800;color:var(--g8);}
+.chart-row{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:18px;}
+.chart-card{background:#fff;border-radius:10px;border:1px solid var(--g2);padding:16px;}
+.chart-title{font-size:12px;font-weight:800;color:var(--g8);margin-bottom:12px;}
+.bar-wrap{display:flex;align-items:flex-end;gap:6px;height:100px;}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+.bbar{width:100%;border-radius:4px 4px 0 0;}
+.blb{font-size:8px;color:var(--g4);text-align:center;}
+.bval{font-size:9px;font-weight:800;color:var(--g8);}
+.leg{display:flex;flex-direction:column;gap:7px;}
+.leg-item{display:flex;align-items:center;justify-content:space-between;font-size:11px;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.leg-lb{display:flex;align-items:center;gap:6px;color:var(--g6);}
+.leg-v{font-weight:800;color:var(--g8);}
+
+/* KANBAN */
+.kb-page{display:none;flex-direction:column;height:calc(100vh - 50px);overflow:hidden;}
+.kb-page.on{display:flex;}
+.kb-toolbar{padding:12px 20px 10px;background:var(--g1);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.kb-scroll{flex:1;overflow:hidden;cursor:grab;user-select:none;}
+.kb-scroll.grabbing{cursor:grabbing;}
+.kb-inner{display:flex;gap:10px;padding:14px 20px;align-items:flex-start;min-width:max-content;min-height:100%;}
+
+/* COLUMNS */
+.kcol{background:rgba(0,0,0,.06);border-radius:10px;width:236px;min-width:236px;display:flex;flex-direction:column;max-height:calc(100vh - 160px);}
+.kcol-head{padding:10px 10px 8px;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.kcol-title{font-size:11px;font-weight:800;color:var(--g8);cursor:pointer;outline:none;background:transparent;border:none;font-family:inherit;flex:1;line-height:1.2;}
+.kcol-title:focus{background:rgba(255,255,255,.8);border-radius:4px;padding:2px 4px;}
+.kcount{background:rgba(255,255,255,.8);border-radius:20px;font-size:10px;font-weight:800;padding:1px 7px;color:var(--g6);flex-shrink:0;}
+.kcol-cards{overflow-y:auto;padding:0 7px 6px;flex:1;min-height:40px;}
+.kcol-cards::-webkit-scrollbar{width:3px;}
+.kcol-cards::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px;}
+.add-card-btn{padding:7px 10px;background:transparent;border:none;color:var(--g6);font-size:10px;font-weight:600;cursor:pointer;text-align:left;border-radius:7px;margin:2px 7px 7px;width:calc(100% - 14px);transition:all .1s;flex-shrink:0;}
+.add-card-btn:hover{background:rgba(255,255,255,.7);color:var(--g8);}
+.add-col-btn{background:rgba(255,255,255,.35);border-radius:10px;width:210px;min-width:210px;padding:14px;cursor:pointer;border:2px dashed rgba(0,0,0,.15);color:var(--g6);font-size:11px;font-weight:700;transition:all .1s;align-self:flex-start;text-align:center;font-family:inherit;}
+.add-col-btn:hover{background:rgba(255,255,255,.55);}
+
+/* CARDS */
+.kcard{background:#fff;border-radius:8px;padding:10px;margin-bottom:7px;border:1.5px solid var(--g2);cursor:grab;transition:border-color .12s,box-shadow .12s;position:relative;}
+.kcard:hover{border-color:var(--t);}
+.kcard.dragging{opacity:.4;cursor:grabbing;}
+.kcard.drag-over{border-color:var(--t);box-shadow:0 0 0 2px var(--t);}
+.drop-zone{height:6px;border-radius:4px;background:transparent;transition:all .15s;margin-bottom:3px;}
+.drop-zone.active{height:36px;background:rgba(146,67,16,.12);border:2px dashed var(--t);border-radius:7px;}
+.kcard-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px;}
+.kcard-id{font-size:9px;font-weight:800;color:var(--t);margin-bottom:3px;}
+.kcard-title{font-size:11px;font-weight:700;color:var(--g8);line-height:1.3;margin-bottom:4px;}
+.kcard-sub{font-size:10px;color:var(--g6);margin-bottom:7px;}
+.kcard-foot{display:flex;align-items:center;justify-content:space-between;}
+.kci{font-size:10px;color:var(--g4);display:inline-flex;align-items:center;gap:2px;margin-right:5px;}
+.udot{width:7px;height:7px;border-radius:50%;}
+.kcard-thumb{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap;}
+.kcard-thumb img{width:36px;height:36px;border-radius:5px;object-fit:cover;border:1px solid var(--g2);}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-start;justify-content:center;padding:28px 16px;overflow-y:auto;}
+.ov.on{display:flex;}
+.mo{background:#fff;border-radius:14px;width:620px;max-width:100%;box-shadow:0 20px 50px rgba(0,0,0,.18);}
+.mo-lg{width:860px;}
+.moh{padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px;}
+.mot{font-size:15px;font-weight:800;color:var(--g8);}
+.mox{width:26px;height:26px;border-radius:7px;border:none;background:var(--g1);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--g6);}
+.mob{padding:0 20px;}
+.mof{padding:13px 20px;border-top:1px solid var(--g2);display:flex;align-items:center;gap:8px;margin-top:13px;}
+.fl{margin-bottom:11px;}
+.lb{font-size:10px;font-weight:800;color:var(--g6);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;display:block;}
+.fi,.fs,.ft{width:100%;padding:8px 10px;border:1.5px solid var(--g2);border-radius:7px;font-size:12px;color:var(--g8);font-family:inherit;outline:none;transition:border-color .12s;background:#fff;}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--t);}
+.ft{resize:vertical;min-height:60px;line-height:1.5;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.fsect{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--g6);padding:6px 0 6px;border-bottom:1px solid var(--g2);margin-bottom:10px;margin-top:4px;}
+.tabs{display:flex;border-bottom:2px solid var(--g2);margin-bottom:13px;}
+.tab{padding:8px 13px;font-size:11px;font-weight:700;color:var(--g6);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .1s;}
+.tab.on{color:var(--t);border-bottom-color:var(--t);}
+.tabc{display:none;}.tabc.on{display:block;}
+.det-h{background:var(--g);border-radius:12px 12px 0 0;padding:16px 20px;color:#fff;}
+.det-ht{font-size:9px;opacity:.55;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.det-hi{font-size:16px;font-weight:800;margin-bottom:8px;line-height:1.2;}
+.det-hb{display:flex;gap:5px;flex-wrap:wrap;}
+.det-hbd{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.14);color:#fff;}
+.uopt{flex:1;padding:7px 6px;border-radius:8px;border:2px solid var(--g2);cursor:pointer;text-align:center;font-size:10px;font-weight:700;font-family:inherit;background:#fff;transition:all .1s;}
+.urg-row{display:flex;gap:6px;}
+.cm-list{max-height:130px;overflow-y:auto;margin-bottom:10px;}
+.cm-item{background:var(--g1);border-radius:7px;padding:7px 9px;margin-bottom:5px;}
+.cm-meta{font-size:9px;color:var(--g4);margin-bottom:2px;}
+.cm-text{font-size:11px;color:var(--g8);line-height:1.4;}
+.doc-btn-row{display:flex;gap:6px;margin-bottom:12px;}
+.doc-big{flex:1;padding:11px 6px;border-radius:8px;border:1.5px solid var(--g2);cursor:pointer;text-align:center;font-size:10px;font-weight:700;background:#fff;transition:all .1s;font-family:inherit;}
+.doc-big:hover{border-color:var(--t);background:var(--cr);}
+.doc-item{display:flex;align-items:center;justify-content:space-between;background:var(--g1);border-radius:7px;padding:7px 10px;margin-bottom:5px;}
+.oi-head{display:grid;grid-template-columns:20px 1fr 66px 66px 66px 20px;gap:4px;padding:5px 8px;background:var(--br);border-radius:6px;margin-bottom:3px;}
+.oi-head span{font-size:8px;font-weight:800;color:#fff;}
+.oi-row{display:grid;grid-template-columns:20px 1fr 66px 66px 66px 20px;gap:4px;align-items:center;padding:4px 8px;border-bottom:1px solid var(--g2);}
+.oi-num{font-size:10px;font-weight:800;color:var(--t);text-align:center;}
+.oi-tot{font-size:10px;font-weight:800;color:var(--g);text-align:right;}
+.oi-in{padding:4px 6px;border:1.5px solid var(--g2);border-radius:5px;font-size:10px;font-family:inherit;outline:none;width:100%;}
+.oi-in:focus{border-color:var(--t);}
+.lsect{background:var(--g1);border-radius:8px;padding:11px;margin-bottom:10px;}
+.lsect-t{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--g6);margin-bottom:7px;}
+.move-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
+
+/* FOTOS */
+.foto-drop{border:2px dashed var(--g3);border-radius:9px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:#fff;margin-bottom:10px;}
+.foto-drop:hover,.foto-drop.drag{border-color:var(--t);background:var(--cr);}
+.foto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.foto-item{position:relative;border-radius:7px;overflow:hidden;aspect-ratio:1;}
+.foto-item img{width:100%;height:100%;object-fit:cover;}
+.foto-del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ETIQUETAS CUSTOM */
+.etq-custom-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g2);}
+.etq-preview{width:24px;height:24px;border-radius:6px;flex-shrink:0;}
+.etq-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--g2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s;}
+.etq-check.on{background:var(--g);border-color:var(--g);color:#fff;font-size:10px;}
+.color-swatches{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.swatch{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .1s;}
+.swatch.on{border-color:var(--g8);transform:scale(1.1);}
+
+/* ADDRESS AUTOCOMPLETE */
+.ac-wrap{position:relative;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--g2);border-top:none;border-radius:0 0 8px 8px;z-index:500;max-height:180px;overflow-y:auto;display:none;}
+.ac-list.on{display:block;}
+.ac-item{padding:8px 11px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--g2);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--g1);}
+
+.toast{position:fixed;bottom:18px;right:18px;background:var(--g);color:#fff;padding:10px 15px;border-radius:9px;font-size:12px;font-weight:700;z-index:9999;transform:translateY(40px);opacity:0;transition:all .22s;pointer-events:none;}
+.toast.on{transform:translateY(0);opacity:1;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--g2);border-radius:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-icon">Hf</div>
+      <div><div class="sb-name">HomeFix</div><div class="sb-sub">Gestão de Serviços</div></div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sec">Principal</div>
+    <div class="ni on" onclick="nav('dash',this)"><span class="ni-ic">▦</span>Dashboard</div>
+    <div class="ni" onclick="nav('kanban',this)"><span class="ni-ic">☰</span>Serviços<span class="nb" id="nb-os">0</span></div>
+    <div class="ni" onclick="nav('orc',this)"><span class="ni-ic">💰</span>Orçamentos<span class="nb" id="nb-orc">0</span></div>
+    <div class="sb-sec">Config</div>
+    <div class="ni" onclick="nav('equipe',this)"><span class="ni-ic">👷</span>Prestadores</div>
+    <div class="ni" onclick="nav('importar',this)"><span class="ni-ic">📥</span>Importar Trello</div>
+  </div>
+  <div class="sb-user">
+    <div class="uav">GC</div>
+    <div><div class="un">Gideão Conrado</div><div class="ur">Administrador</div></div>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div class="tb-title" id="tb-title">Dashboard</div>
+  <div class="tb-acts">
+    <button class="btn bg bsm" onclick="nav('orc',null);setTimeout(abrirOrc,80)">+ Orçamento</button>
+    <button class="btn bp bsm" onclick="openNewCard(null)">+ Nova OS</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="content page on" id="p-dash">
+  <!-- Filtros do Dashboard — mesma barra de Serviços e Orçamentos -->
+  <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+    <div style="display:flex;align-items:center;background:#fff;border:1.5px solid var(--g2);border-radius:7px;overflow:hidden;flex:1;max-width:480px;">
+      <select id="dash-search-campo" onchange="rDash()" style="padding:7px 9px;border:none;font-size:10px;font-weight:700;color:var(--g6);background:var(--g1);outline:none;font-family:inherit;border-right:1px solid var(--g2);">
+        <option value="todos">Tudo</option>
+        <option value="imob">Imobiliária</option>
+        <option value="cliente">Cliente</option>
+        <option value="imovel">Imóvel / OS</option>
+        <option value="tipo">Tipo (MNT/RSC)</option>
+      </select>
+      <input id="dash-search-q" placeholder="Buscar OS, cliente, imóvel..." style="border:none;outline:none;padding:7px 11px;font-size:11px;font-family:inherit;flex:1;" oninput="rDash()"/>
+      <button class="btn bg" style="border-radius:0;border:none;border-left:1px solid var(--g2);font-size:10px;padding:7px 10px;color:var(--g6);" onclick="gi('dash-search-q').value='';rDash()">✕</button>
+    </div>
+    <div class="btn bg bsm" id="df-all" style="background:var(--g);color:#fff;border-color:var(--g)" onclick="setDashFilter('all',this)">Todos</div>
+    <div class="btn bg bsm" id="df-mnt" onclick="setDashFilter('MNT',this)">🔧 MNT</div>
+    <div class="btn bg bsm" id="df-rsc" onclick="setDashFilter('RSC',this)">📋 RSC</div>
+  </div>
+  <div class="sg">
+    <div class="sc ct"><div class="sl">OS Ativas</div><div class="sv" id="s-at">0</div><div class="ss">Abertas e em andamento</div></div>
+    <div class="sc cy"><div class="sl">Em Execução</div><div class="sv" id="s-ex">0</div><div class="ss">Prestadores em campo</div></div>
+    <div class="sc cg"><div class="sl">Concluídas</div><div class="sv" id="s-cn">0</div><div class="ss">Este mês</div></div>
+    <div class="sc cb"><div class="sl">Orç. Pendentes</div><div class="sv" id="s-op">0</div><div class="ss">Aguardando aprovação</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card"><div class="chart-title">Serviços por Etapa</div><div class="bar-wrap" id="dash-bar"></div></div>
+    <div class="chart-card"><div class="chart-title">MNT vs RSC</div><div id="dash-tipo" style="display:flex;align-items:center;gap:16px;height:100px;"></div></div>
+  </div>
+  <div class="sr">
+    <div class="st">Últimas OS</div>
+    <button class="btn bg bsm" onclick="nav('kanban',document.querySelectorAll('.ni')[1])">Ver Kanban →</button>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>OS</th><th>Tipo</th><th>Imóvel / Locatário</th><th>Imobiliária</th><th>Etapa</th><th>Urgência</th><th>Criado em</th></tr></thead>
+    <tbody id="d-tbody"></tbody>
+  </table></div>
+</div>
+
+<!-- KANBAN -->
+<div class="kb-page page" id="p-kanban">
+  <div class="kb-toolbar">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;flex:1;">
+      <!-- Filtros rápidos por tipo -->
+      <div class="btn bg bsm" style="background:var(--g);color:#fff;border-color:var(--g)" onclick="fKb(this,'all')">Todas</div>
+      <div class="btn bg bsm" onclick="fKb(this,'MNT')">🔧 MNT</div>
+      <div class="btn bg bsm" onclick="fKb(this,'RSC')">📋 RSC</div>
+      <div class="btn bg bsm" onclick="fKb(this,'urgente')">🔴 Urgente</div>
+      <!-- Barra de busca -->
+      <div style="display:flex;align-items:center;gap:0;background:#fff;border:1.5px solid var(--g2);border-radius:7px;overflow:hidden;flex:1;max-width:500px;">
+        <select id="kb-search-tipo" onchange="rKanban()" style="padding:6px 8px;border:none;font-size:10px;font-weight:700;color:var(--g6);background:var(--g1);outline:none;font-family:inherit;border-right:1px solid var(--g2);">
+          <option value="todos">Tudo</option>
+          <option value="imob">Imobiliária</option>
+          <option value="cliente">Cliente</option>
+          <option value="imovel">Imóvel / OS</option>
+          <option value="tipo">Tipo (MNT/RSC)</option>
+        </select>
+        <input id="kb-search-q" placeholder="Buscar OS..." style="border:none;outline:none;padding:6px 10px;font-size:11px;font-family:inherit;flex:1;" oninput="rKanban()"/>
+      </div>
+    </div>
+    <button class="btn bp bsm" style="margin-left:8px;" onclick="openNewCard(null)">+ Nova OS</button>
+  </div>
+  <div class="kb-scroll" id="kb-scroll">
+    <div class="kb-inner" id="kanban"></div>
+  </div>
+</div>
+
+<!-- ORÇAMENTOS -->
+<div class="content page" id="p-orc">
+  <div class="sr">
+    <div class="st">Orçamentos</div>
+    <div style="display:flex;gap:7px;align-items:center;flex:1;max-width:600px;margin-left:14px;">
+      <div style="display:flex;align-items:center;gap:0;background:#fff;border:1.5px solid var(--g2);border-radius:7px;overflow:hidden;flex:1;">
+        <select id="orc-search-tipo-campo" onchange="rOrcs()" style="padding:6px 8px;border:none;font-size:10px;font-weight:700;color:var(--g6);background:var(--g1);outline:none;font-family:inherit;border-right:1px solid var(--g2);">
+          <option value="todos">Tudo</option>
+          <option value="imob">Imobiliária</option>
+          <option value="cliente">Cliente</option>
+          <option value="imovel">Imóvel / OS</option>
+          <option value="tipo">Tipo (MNT/RSC)</option>
+        </select>
+        <input id="orc-search-q" placeholder="Buscar orçamento..." style="border:none;outline:none;padding:6px 10px;font-size:11px;font-family:inherit;flex:1;" oninput="rOrcs()"/>
+      </div>
+      <select id="orc-filter-status" onchange="rOrcs()" style="padding:6px 10px;font-size:11px;border-radius:7px;border:1.5px solid var(--g2);font-family:inherit;outline:none;background:#fff;">
+        <option value="">Todos</option>
+        <option value="aguardando">Aguardando</option>
+        <option value="aprovado">Aprovados</option>
+        <option value="arquivado">Arquivados</option>
+      </select>
+      <button class="btn bp bsm" onclick="abrirOrc()">+ Novo</button>
+    </div>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Nº</th><th>Tipo</th><th>Imóvel</th><th>Cliente</th><th>Valor</th><th>Status</th><th>Data</th><th></th></tr></thead>
+    <tbody id="orc-tbody"></tbody>
+  </table></div>
+</div>
+
+<!-- EQUIPE -->
+<div class="content page" id="p-equipe">
+  <div class="sr"><div class="st">Prestadores</div><button class="btn bp bsm" onclick="openM('m-tech')">+ Adicionar</button></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="eq-grid"></div>
+</div>
+
+<!-- IMPORTAR -->
+<div class="content page" id="p-importar">
+  <div class="sr"><div class="st">Importar do Trello</div></div>
+  <div class="tw" style="padding:20px;">
+    <p style="font-size:13px;color:var(--g6);margin-bottom:16px;line-height:1.6;">Exporte o quadro do Trello em JSON e importe aqui. Os cartões e colunas chegam automaticamente.</p>
+    <div style="background:var(--g1);border-radius:9px;padding:14px;margin-bottom:16px;border-left:3px solid var(--t);">
+      <div style="font-size:12px;font-weight:800;color:var(--g8);margin-bottom:5px;">Como exportar do Trello:</div>
+      <ol style="font-size:12px;color:var(--g6);padding-left:18px;line-height:1.8;">
+        <li>Abra o quadro no Trello</li>
+        <li>Clique em "..." (menu) no canto superior direito</li>
+        <li>Vá em <strong>Mais → Imprimir e exportar</strong></li>
+        <li>Clique em <strong>Exportar como JSON</strong></li>
+        <li>Importe o arquivo abaixo</li>
+      </ol>
+    </div>
+    <div class="foto-drop" onclick="document.getElementById('import-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+      <div style="font-size:32px;margin-bottom:8px;">📥</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Clique ou arraste o arquivo JSON do Trello</div>
+      <div style="font-size:11px;color:var(--g4);">Arquivo .json exportado do Trello</div>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importTrello(event)"/>
+    <div id="import-result"></div>
+  </div>
+</div>
+</div><!-- /main -->
+
+<!-- MODAL NOVA OS -->
+<div class="ov" id="m-os">
+<div class="mo">
+  <div class="moh"><div class="mot" id="m-os-title">Nova OS</div><button class="mox" onclick="closeM('m-os')">✕</button></div>
+  <div class="mob">
+    <div class="fl">
+      <label class="lb">Tipo</label>
+      <div style="display:flex;gap:8px;">
+        <button class="uopt on" id="ot-mnt" onclick="setOSTipo('MNT')" style="color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8;">🔧 MNT</button>
+        <button class="uopt" id="ot-rsc" onclick="setOSTipo('RSC')">📋 RSC</button>
+      </div>
+    </div>
+    <div class="fsect">Imóvel</div>
+    <div class="fr" style="margin-bottom:10px;">
+      <div class="fl" style="margin:0"><label class="lb">Nº Imóvel / Contrato</label><input class="fi" id="os-numimov" placeholder="Ex: 11740/2460"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Prédio / Referência</label><input class="fi" id="os-predio" placeholder="Ex: ADIM APTO 402"/></div>
+    </div>
+    <div class="fl">
+      <label class="lb">Endereço</label>
+      <div class="ac-wrap">
+        <input class="fi" id="os-end" placeholder="Digite o endereço..." autocomplete="off" oninput="acSearch(this.value,'ac-os')"/>
+        <div class="ac-list" id="ac-os"></div>
+      </div>
+    </div>
+    <div class="fsect">Locatário</div>
+    <div class="fr" style="margin-bottom:10px;">
+      <div class="fl" style="margin:0"><label class="lb" id="lbl-inq">Inquilino</label><input class="fi" id="os-nome" placeholder="Nome completo"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Contato</label><input class="fi" id="os-tel" placeholder="(47) 99999-9999"/></div>
+    </div>
+    <div class="fsect">Imobiliária</div>
+    <div class="fr" style="margin-bottom:10px;">
+      <div class="fl" style="margin:0"><label class="lb">Imobiliária</label><input class="fi" id="os-imob" placeholder="Nome da imobiliária"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Responsável</label><input class="fi" id="os-resp" placeholder="Nome do responsável"/></div>
+    </div>
+    <div class="fr" style="margin-bottom:10px;">
+      <div class="fl" style="margin:0"><label class="lb">Nº Ticket / OS</label><input class="fi" id="os-ticket" placeholder="Ex: MNT TICKET 2200"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Coluna</label><select class="fs" id="os-col"></select></div>
+    </div>
+    <div class="fl"><label class="lb">O que precisa ser feito</label><textarea class="ft" id="os-oque" placeholder="Descreva o problema..."></textarea></div>
+    <div class="fl">
+      <label class="lb">Urgência</label>
+      <div class="urg-row">
+        <button class="uopt" data-u="urgente" onclick="setUrg(this)" style="color:#b91c1c">🔴 Urgente</button>
+        <button class="uopt on" data-u="alta" onclick="setUrg(this)" style="color:#b91c1c;background:#fee2e2;border-color:#b91c1c">Alta</button>
+        <button class="uopt" data-u="media" onclick="setUrg(this)" style="color:#92400e">Média</button>
+        <button class="uopt" data-u="baixa" onclick="setUrg(this)" style="color:#065f46">Baixa</button>
+        <button class="uopt" data-u="normal" onclick="setUrg(this)">Normal</button>
+      </div>
+    </div>
+    <div class="fl"><label class="lb">Etiquetas</label><div id="etq-new"></div></div>
+  </div>
+  <div class="mof">
+    <button class="btn bg bsm" onclick="closeM('m-os')">Cancelar</button>
+    <div style="flex:1"></div>
+    <button class="btn bp bsm" onclick="salvarOS()">Criar OS</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL DETALHE OS -->
+<div class="ov" id="m-det">
+<div class="mo mo-lg">
+  <div class="det-h" id="det-h"></div>
+  <div style="padding:13px 20px 0;">
+    <div class="tabs">
+      <div class="tab on" onclick="swTab(this,'t-info')">📋 Informações</div>
+      <div class="tab" onclick="swTab(this,'t-fotos')">📷 Fotos</div>
+      <div class="tab" onclick="swTab(this,'t-coment')">💬 Comentários</div>
+      <div class="tab" onclick="swTab(this,'t-docs')">📄 Documentos</div>
+    </div>
+    <div class="tabc on" id="t-info"></div>
+    <div class="tabc" id="t-fotos">
+      <div id="fotos-antes-wrap">
+        <div class="lsect-t" style="margin-bottom:8px">📷 Fotos de Antes</div>
+        <div class="foto-drop" onclick="document.getElementById('foto-input-antes').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleFotoDrop(event,'antes')">
+          <div style="font-size:26px;margin-bottom:6px">📷</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:3px">Clique ou arraste fotos de ANTES</div>
+          <div style="font-size:10px;color:var(--g4)">Registro do estado inicial / problema identificado</div>
+        </div>
+        <input type="file" id="foto-input-antes" accept="image/*" multiple style="display:none" onchange="handleFotoInput(event,'antes')"/>
+        <div class="foto-grid" id="foto-grid-antes"></div>
+      </div>
+
+      <div class="lsect-t" id="fotos-depois-label" style="margin:16px 0 8px">✅ Fotos de Depois</div>
+      <div class="foto-drop" onclick="document.getElementById('foto-input-depois').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleFotoDrop(event,'depois')">
+        <div style="font-size:26px;margin-bottom:6px">✅</div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:3px" id="fotos-depois-title">Clique ou arraste fotos de DEPOIS</div>
+        <div style="font-size:10px;color:var(--g4)">Registro do serviço concluído</div>
+      </div>
+      <input type="file" id="foto-input-depois" accept="image/*" multiple style="display:none" onchange="handleFotoInput(event,'depois')"/>
+      <div class="foto-grid" id="foto-grid-depois"></div>
+    </div>
+    <div class="tabc" id="t-coment">
+      <div class="cm-list" id="cm-list"></div>
+      <div style="display:flex;gap:6px;"><input class="fi" id="cm-in" placeholder="Registrar contato, observação..."/><button class="btn bp bsm" onclick="addComent()">Enviar</button></div>
+    </div>
+    <div class="tabc" id="t-docs">
+      <label class="lb" style="margin-bottom:8px;display:block">Gerar documento</label>
+      <div class="doc-btn-row">
+        <button class="doc-big" onclick="gerarDoc('orc')">💰<br><span style="font-size:9px">Orçamento</span></button>
+        <button class="doc-big" onclick="gerarDoc('lv')">🔍<br><span style="font-size:9px">Laudo de Visita</span></button>
+        <button class="doc-big" onclick="gerarDoc('lp')">✅<br><span style="font-size:9px">Laudo Pós-Serviço</span></button>
+      </div>
+      <div id="doc-list"></div>
+    </div>
+  </div>
+  <div class="mof">
+    <button class="btn bg bsm" onclick="abrirEtqs()">🏷️ Etiquetas</button>
+    <button class="btn bg bsm" style="color:var(--ye)" onclick="arquivarCard(detId)" id="btn-arquivar">📁 Arquivar</button>
+    <button class="btn bg bsm" style="color:var(--red)" onclick="delCard(detId)" title="Excluir OS">🗑 Excluir</button>
+    <div style="flex:1"></div>
+    <button class="btn bg bsm" onclick="closeM('m-det')">Fechar</button>
+    <button class="btn bg bsm" onclick="voltarEtapa()">← Voltar Etapa</button>
+    <button class="btn bp bsm" onclick="proxEtapa()">Avançar Etapa →</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL ETIQUETAS -->
+<div class="ov" id="m-etq">
+<div class="mo">
+  <div class="moh"><div class="mot">Gerenciar Etiquetas</div><button class="mox" onclick="closeM('m-etq')">✕</button></div>
+  <div class="mob">
+    <div style="max-height:240px;overflow-y:auto;margin-bottom:14px;" id="etq-card-list"></div>
+    <div style="border-top:1px solid var(--g2);padding-top:12px;">
+      <div class="lb" style="margin-bottom:8px;">Criar nova etiqueta</div>
+      <div class="fr" style="margin-bottom:8px;">
+        <div class="fl" style="margin:0"><label class="lb">Nome</label><input class="fi" id="etq-new-nome" placeholder="Ex: Urgente, Aprovado..."/></div>
+        <div class="fl" style="margin:0"><label class="lb">Cor selecionada</label>
+          <div style="height:36px;border-radius:7px;border:1.5px solid var(--g2);" id="etq-cor-preview"></div>
+        </div>
+      </div>
+      <div class="color-swatches" id="etq-swatches"></div>
+    </div>
+  </div>
+  <div class="mof">
+    <button class="btn bg bsm" onclick="closeM('m-etq');rEtqNaOS()">Fechar</button>
+    <div style="flex:1"></div>
+    <button class="btn bp bsm" onclick="criarEtq()">Criar Etiqueta</button>
+    <button class="btn bgr bsm" onclick="salvarEtqs()">Salvar</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL ORÇAMENTO -->
+<div class="ov" id="m-orc">
+<div class="mo mo-lg">
+  <div class="moh">
+    <div><div class="mot" id="orc-title">Novo Orçamento</div><div style="font-size:10px;color:var(--g4);margin-top:2px" id="orc-sub"></div></div>
+    <button class="mox" onclick="closeM('m-orc')">✕</button>
+  </div>
+  <div class="mob">
+    <div class="fl">
+      <div style="display:flex;gap:8px;">
+        <button class="uopt on" id="oc-mnt" onclick="setOrcTipo('MNT')" style="color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8;">🔧 MNT</button>
+        <button class="uopt" id="oc-rsc" onclick="setOrcTipo('RSC')">📋 RSC</button>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--g2);border-radius:9px;margin-bottom:11px;overflow:hidden;">
+      <div style="background:var(--g);color:#fff;font-size:9px;font-weight:800;padding:6px 13px;letter-spacing:.8px;text-transform:uppercase;">Informações</div>
+      <div style="padding:12px;">
+        <div class="fr" style="margin-bottom:9px;">
+          <div class="fl" style="margin:0"><label class="lb">Nº Orçamento</label><input class="fi" id="oc-num" placeholder="MNT-2025-001"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Data</label><input class="fi" id="oc-data" type="date"/></div>
+        </div>
+        <div class="fr" style="margin-bottom:9px;">
+          <div class="fl" style="margin:0"><label class="lb">Imobiliária</label><input class="fi" id="oc-imob" placeholder="Nome da imobiliária"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Aos cuidados de</label><input class="fi" id="oc-cuid" placeholder="Responsável"/></div>
+        </div>
+        <div class="fl" style="margin-bottom:9px;"><label class="lb">Imóvel</label>
+          <div class="ac-wrap"><input class="fi" id="oc-imovel" placeholder="Endereço do imóvel" autocomplete="off" oninput="acSearch(this.value,'ac-orc')"/><div class="ac-list" id="ac-orc"></div></div>
+        </div>
+        <div class="fr">
+          <div class="fl" style="margin:0"><label class="lb" id="lbl-oc-cli">Inquilino</label><input class="fi" id="oc-cli" placeholder="Nome"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Contato</label><input class="fi" id="oc-cont" placeholder="email ou telefone"/></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--g2);border-radius:9px;margin-bottom:11px;overflow:hidden;">
+      <div style="background:var(--g);color:#fff;font-size:9px;font-weight:800;padding:6px 13px;letter-spacing:.8px;text-transform:uppercase;">Diagnóstico Técnico</div>
+      <div style="padding:12px;"><textarea class="ft" id="oc-diag" rows="2" placeholder="Problemas identificados..."></textarea></div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--g2);border-radius:9px;margin-bottom:11px;overflow:hidden;">
+      <div style="background:var(--g);color:#fff;font-size:9px;font-weight:800;padding:6px 13px;letter-spacing:.8px;text-transform:uppercase;">Itens</div>
+      <div style="padding:11px;">
+        <div class="oi-head"><span>Nº</span><span>Descrição</span><span style="text-align:right">M.O.</span><span style="text-align:right">Material</span><span style="text-align:right">Total</span><span></span></div>
+        <div id="oi-list"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 8px 3px;">
+          <button class="btn bg bsm" onclick="addOI()">+ Item</button>
+          <div style="background:var(--g);border-radius:7px;padding:6px 13px;display:flex;align-items:center;gap:9px;">
+            <span style="color:var(--cr);font-size:10px;">Total</span>
+            <strong style="color:#fff;font-size:13px;" id="oi-total">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--g2);border-radius:9px;margin-bottom:11px;overflow:hidden;">
+      <div style="background:var(--g);color:#fff;font-size:9px;font-weight:800;padding:6px 13px;letter-spacing:.8px;text-transform:uppercase;">Observações Gerais</div>
+      <div style="padding:12px;"><textarea class="ft" id="oc-obs" rows="2" placeholder="Detalhes do material utilizado, condições especiais de garantia, etc..."></textarea></div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--g2);border-radius:9px;overflow:hidden;">
+      <div style="background:var(--g);color:#fff;font-size:9px;font-weight:800;padding:6px 13px;letter-spacing:.8px;text-transform:uppercase;">Condições</div>
+      <div style="padding:12px;">
+        <div class="fr3">
+          <div class="fl" style="margin:0"><label class="lb">Prazo</label><input class="fi" id="oc-prazo" placeholder="5 dias úteis"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Garantia</label><input class="fi" id="oc-gar" value="90 dias"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Pagamento</label><input class="fi" id="oc-pgto" value="A negociar"/></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mof">
+    <button class="btn bg bsm" onclick="closeM('m-orc')">Fechar</button>
+    <div style="flex:1"></div>
+    <button class="btn bp bsm" onclick="salvarOrc()">Salvar Orçamento</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL LAUDO VISITA -->
+<div class="ov" id="m-lv"><div class="mo">
+  <div class="moh"><div class="mot">Laudo de Visita Técnica</div><button class="mox" onclick="closeM('m-lv')">✕</button></div>
+  <div class="mob">
+    <div class="lsect"><div class="lsect-t">Dados</div>
+      <div class="fr"><div class="fl" style="margin:0"><label class="lb">Data</label><input class="fi" id="lv-data" type="date"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Técnico</label><input class="fi" id="lv-tec" placeholder="Nome"/></div></div>
+    </div>
+    <div class="lsect"><div class="lsect-t">Problemas Identificados</div><textarea class="ft" id="lv-prob" rows="3" placeholder="Descreva os problemas..."></textarea></div>
+    <div class="lsect"><div class="lsect-t">Conclusão</div><textarea class="ft" id="lv-conc" rows="2" placeholder="Conclusão e recomendações..."></textarea></div>
+  </div>
+  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-lv')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarDoc('lv','Laudo de Visita')">Salvar</button></div>
+</div></div>
+
+<!-- MODAL LAUDO POS -->
+<div class="ov" id="m-lp"><div class="mo">
+  <div class="moh"><div class="mot" id="lp-title">Laudo Pós-Serviço (RPS)</div><button class="mox" onclick="closeM('m-lp')">✕</button></div>
+  <div class="mob">
+    <div class="lsect"><div class="lsect-t">Dados do Imóvel (preenchido automaticamente)</div>
+      <div style="font-size:12px;line-height:1.8" id="lp-info"></div>
+    </div>
+    <div class="lsect"><div class="lsect-t">Execução</div>
+      <div class="fr"><div class="fl" style="margin:0"><label class="lb">Data de Execução</label><input class="fi" id="lp-data" type="date"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Prestador / Técnico</label><input class="fi" id="lp-prest" placeholder="Nome do prestador"/></div></div>
+    </div>
+    <!-- MNT -->
+    <div id="lp-mnt-fields">
+      <div class="lsect"><div class="lsect-t">Problema Identificado</div><textarea class="ft" id="lp-problema" rows="2" placeholder="Qual era o problema..."></textarea></div>
+      <div class="lsect"><div class="lsect-t">Solução Aplicada</div><textarea class="ft" id="lp-serv" rows="3" placeholder="O que foi feito no local..."></textarea></div>
+    </div>
+    <!-- RSC -->
+    <div id="lp-rsc-fields">
+      <div class="lsect"><div class="lsect-t">Serviços Executados</div><textarea class="ft" id="lp-servicos-rsc" rows="3" placeholder="Liste os serviços realizados (pintura, limpeza, reparos...)"></textarea></div>
+    </div>
+    <div class="lsect"><div class="lsect-t">Observações / Garantia</div><textarea class="ft" id="lp-obs" rows="2"></textarea></div>
+    <!-- Checklist -->
+    <div class="lsect"><div class="lsect-t" id="lp-check-title">Checklist Final</div><div id="lp-checklist"></div></div>
+  </div>
+  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-lp')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarDoc('lp','Laudo Pós-Serviço')">💾 Salvar</button></div>
+</div></div>
+
+<!-- MODAL PRESTADOR -->
+<div class="ov" id="m-tech"><div class="mo">
+  <div class="moh"><div class="mot">Adicionar Prestador</div><button class="mox" onclick="closeM('m-tech')">✕</button></div>
+  <div class="mob">
+    <div class="fr"><div class="fl"><label class="lb">Nome</label><input class="fi" id="te-nome" placeholder="Nome completo"/></div>
+    <div class="fl"><label class="lb">Especialidade</label><select class="fs" id="te-esp"><option>Multidisciplinar</option><option>Elétrica</option><option>Hidráulica</option><option>Pintura</option><option>Alvenaria</option><option>Ar Condicionado</option></select></div></div>
+    <div class="fl"><label class="lb">Telefone</label><input class="fi" id="te-tel" placeholder="(47) 99999-9999"/></div>
+  </div>
+  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-tech')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarTech()">Adicionar</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DADOS ──
+const CORES_SWATCH=['#ef4444','#f97316','#f59e0b','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#6b7280','#374151'];
+const URGCOR={urgente:'#ef4444',alta:'#ef4444',media:'#f59e0b',baixa:'#22c55e',normal:'#d1d5db'};
+const URGTXT={urgente:'🔴 Urgente',alta:'Alta',media:'Média',baixa:'Baixa',normal:'Normal'};
+const ETAPA_SEQ=['SOLICITAÇÃO DE VISITA','EM CONTATO','VISITAS AGENDADA','GERAR ORÇAMENTOS','AGUARDANDO RETORNO','ORÇAMENTO EM ANÁLISE','ORÇAMENTOS APROVADOS','EM ANDAMENTO','PARA PAGAMENTO','FINALIZADO','VERIFICADOS'];
+const EBADGE={'SOLICITAÇÃO DE VISITA':'b-at','EM CONTATO':'b-at','VISITAS AGENDADA':'b-mnt','GERAR ORÇAMENTOS':'b-rsc','AGUARDANDO RETORNO':'b-rsc','ORÇAMENTO EM ANÁLISE':'b-rsc','ORÇAMENTOS APROVADOS':'b-ap','EM ANDAMENTO':'b-an','PARA PAGAMENTO':'b-mnt','FINALIZADO':'b-fi','VERIFICADOS':'b-fi'};
+
+// Etiquetas globais (usuário cria)
+let etqGlobal=[
+  {id:'e1',nome:'Urgente',cor:'#ef4444'},
+  {id:'e2',nome:'Aprovado',cor:'#22c55e'},
+  {id:'e3',nome:'Finalizado',cor:'#14b8a6'},
+  {id:'e4',nome:'Orç. Enviado',cor:'#f59e0b'},
+  {id:'e5',nome:'Ag. Retorno',cor:'#ec4899'},
+  {id:'e6',nome:'Sem Resposta',cor:'#6b7280'},
+  {id:'e7',nome:'Em Contato',cor:'#3b82f6'},
+  {id:'e8',nome:'Agendado',cor:'#8b5cf6'},
+];
+let etqCor='#ef4444';
+let selEtqCard=[]; // etq ids do card atual
+
+let cols=[
+  {id:'c0',name:'SOLICITAÇÃO DE VISITA',cards:[]},
+  {id:'c1',name:'EM CONTATO',cards:[]},
+  {id:'c2',name:'VISITAS AGENDADA',cards:[]},
+  {id:'c3',name:'GERAR ORÇAMENTOS',cards:[]},
+  {id:'c4',name:'PENDÊNCIAS',cards:[]},
+  {id:'c5',name:'AGUARDANDO RETORNO',cards:[]},
+  {id:'c6',name:'ORÇAMENTO EM ANÁLISE',cards:[]},
+  {id:'c7',name:'ORÇAMENTOS APROVADOS',cards:[]},
+  {id:'c8',name:'EM ANDAMENTO',cards:[]},
+  {id:'c9',name:'PARA PAGAMENTO',cards:[]},
+  {id:'c10',name:'FINALIZADO',cards:[]},
+  {id:'c11',name:'VERIFICADOS',cards:[]},
+];
+let orcs=[
+  {id:'ORC-001',tipo:'MNT',imob:'ADIM Imóveis',imovel:'Res. Gaivota Apto 304',cli:'João Pereira',valor:480,status:'aprovado',data:'10/06/2025'},
+  {id:'ORC-002',tipo:'RSC',imob:'ADIM Imóveis',imovel:'Apto 201 Ed. Atlântico',cli:'Ana Lima',valor:1850,status:'aprovado',data:'09/06/2025'},
+  {id:'ORC-003',tipo:'MNT',imob:'Casa Certa',imovel:'Casa R. das Flores 220',cli:'Carlos Mendes',valor:720,status:'aguardando',data:'12/06/2025'},
+];
+let techs=[
+  {id:1,nome:'Carlos Silva',esp:'Multidisciplinar',tel:'(47) 99123-4567',status:'ativo',conc:14,av:'#924310'},
+  {id:2,nome:'Roberto Lima',esp:'Hidráulica',tel:'(47) 98765-4321',status:'ocupado',conc:9,av:'#373d31'},
+  {id:3,nome:'Marcos Souza',esp:'Pintura',tel:'(47) 99456-7890',status:'ativo',conc:17,av:'#1a6fa8'},
+];
+
+// dados iniciais
+cols[1].cards=[{id:'k1',tipo:'MNT',ticket:'MNT TICKET 2200',numimov:'14198/2519',criadoEm:'10/06/2026 09:00',predio:'ADIM',end:'Av. Brasil, 302 — BC',nome:'João Pereira',tel:'(47) 99111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Problemas elétricos na sala',urg:'urgente',etqs:['e1','e7'],fotos:[],coments:[{a:'Administrativo',dt:'Hoje 09:00',t:'Entrei em contato, aguardando retorno.'}],docs:[]}];
+cols[2].cards=[
+  {id:'k2',tipo:'MNT',ticket:'MNT TICKET 2238',numimov:'16658/2737',criadoEm:'11/06/2026 14:30',predio:'ADIM',end:'Rua Y, Apto 504 — BC',nome:'Maria Souza',tel:'(47) 99333-4444',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Vazamento banheiro',urg:'alta',etqs:['e8','e7'],fotos:[],coments:[],docs:[]},
+  {id:'k3',tipo:'MNT',ticket:'MNT 14881/2480',numimov:'14881/2480',predio:'ADIM APTO 08',end:'Rua Z — BC',nome:'Carlos Mendes',tel:'(47) 99555-6666',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Ar condicionado não refrigera',urg:'media',etqs:['e7'],fotos:[],coments:[],docs:[]}
+];
+cols[3].cards=[
+  {id:'k4',tipo:'MNT',ticket:'MNT 13468/2785',numimov:'13468/2785',predio:'ADIM',end:'Rua K, 101 — BC',nome:'Pedro Costa',tel:'(47) 99999-0000',imob:'Prime Imobiliária',resp:'Ricardo Souza',oque:'Pintura sala e quarto',urg:'media',etqs:[],fotos:[],coments:[],docs:[]},
+  {id:'k5',tipo:'MNT',ticket:'MNT ticket 2249',numimov:'14715/2479',predio:'ADIM',end:'Rua W, 500 — BC',nome:'Ana Lima',tel:'(47) 99777-8888',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Infiltração parede sala',urg:'alta',etqs:[],fotos:[],coments:[],docs:[]}
+];
+cols[7].cards=[
+  {id:'k6',tipo:'MNT',ticket:'MNT 13053/2757',numimov:'13053/2757',predio:'ADIM APTO 1201',end:'Av. X, 1201 — BC',nome:'Lúcia Ferreira',tel:'(47) 98888-7777',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Reparo ar condicionado',urg:'media',etqs:['e2'],fotos:[],coments:[],docs:[{tipo:'orc',label:'Orçamento',dt:'09/06/2025',val:580}]},
+  {id:'k7',tipo:'RSC',ticket:'RSC 11403/2168',numimov:'11403/2168',predio:'ADIM APTO 204 Torre I',end:'Rua M, 204 — BC',nome:'Roberto Alves',tel:'(47) 97777-6666',imob:'ADIM Imóveis',resp:'Juliana Costa',oque:'Pintura + limpeza vistoria de saída',urg:'baixa',etqs:['e2'],fotos:[],coments:[],docs:[{tipo:'orc',label:'Orçamento',dt:'07/06/2025',val:1850}]}
+];
+cols[8].cards=[{id:'k8',tipo:'MNT',ticket:'MNT TICKET 1893',numimov:'13450/2108',predio:'ADIM',end:'Rua M, 305 — BC',nome:'Claudia Nunes',tel:'(47) 96666-5555',imob:'Casa Certa Imóveis',resp:'Ricardo Souza',oque:'Troca tomadas queimadas',urg:'media',etqs:['e2'],fotos:[],coments:[{a:'Administrativo',dt:'Hoje 11:00',t:'Carlos iniciou o serviço.'}],docs:[]}];
+cols[10].cards=[{id:'k9',tipo:'MNT',ticket:'MNT ticket 2244',numimov:'13457/2778',predio:'ADIM',end:'Rua K, 88 — BC',nome:'Fernanda Lima',tel:'(47) 91111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Reparo elétrico',urg:'normal',etqs:['e3'],fotos:[],coments:[],docs:[{tipo:'lp',label:'Laudo Pós-Serviço',dt:'10/06/2025'}]}];
+
+let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='';
+let colCnt=12,cardCnt=20,orcCnt=4,etqCnt=9;
+
+// ── UTILS ──
+const gi=id=>document.getElementById(id);
+const gv=id=>gi(id)?(gi(id).value||'').trim():'';
+const sv=(id,v)=>{if(gi(id))gi(id).value=v;};
+function fmtR(v){return'R$\u00a0'+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function toast(m){const t=gi('toast');t.textContent='✅ '+m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
+function openM(id){gi(id).classList.add('on');}
+function closeM(id){gi(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+function getCard(id){for(const c of cols)for(const k of c.cards)if(k.id===id)return k;return null;}
+function getCardCol(id){for(const c of cols)for(const k of c.cards)if(k.id===id)return c;return null;}
+function ini(n){return(n||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+
+// ── KANBAN SCROLL (arrastar board) ──
+(()=>{
+  const el=gi('kb-scroll');
+  let drag=false,sx=0,sy=0,sl=0,st=0;
+  el.addEventListener('mousedown',e=>{
+    if(e.target.classList.contains('kcard')||e.target.closest('.kcard'))return;
+    drag=true;sx=e.clientX;sy=e.clientY;sl=el.scrollLeft;st=el.scrollTop;
+    el.classList.add('grabbing');e.preventDefault();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    el.scrollLeft=sl-(e.clientX-sx);
+    el.scrollTop=st-(e.clientY-sy);
+  });
+  document.addEventListener('mouseup',()=>{drag=false;el.classList.remove('grabbing');});
+  el.addEventListener('wheel',e=>{e.preventDefault();el.scrollLeft+=e.deltaY;},{passive:false});
+})();
+
+// ── DRAG & DROP CARDS ──
+let dragCardId=null,dragColId=null;
+function onCardDragStart(e,cardId,colId){
+  dragCardId=cardId;dragColId=colId;
+  setTimeout(()=>{const el=document.getElementById('kc-'+cardId);if(el)el.classList.add('dragging');},0);
+  e.dataTransfer.effectAllowed='move';
+}
+function onCardDragEnd(e){
+  document.querySelectorAll('.kcard').forEach(c=>c.classList.remove('dragging'));
+  document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('active'));
+  dragCardId=null;dragColId=null;
+}
+function onDropZoneDragOver(e,colId,idx){
+  e.preventDefault();e.stopPropagation();
+  document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('active'));
+  document.getElementById('dz-'+colId+'-'+idx)?.classList.add('active');
+}
+function onDropZoneDrop(e,colId,idx){
+  e.preventDefault();
+  if(!dragCardId)return;
+  const srcCol=cols.find(c=>c.id===dragColId);
+  const dstCol=cols.find(c=>c.id===colId);
+  if(!srcCol||!dstCol)return;
+  const card=srcCol.cards.find(c=>c.id===dragCardId);
+  if(!card)return;
+  srcCol.cards=srcCol.cards.filter(c=>c.id!==dragCardId);
+  let insertIdx=idx;
+  if(srcCol.id===dstCol.id&&idx>srcCol.cards.indexOf(card))insertIdx--;
+  dstCol.cards.splice(Math.max(0,insertIdx),0,card);
+  rKanban();rDash();
+}
+
+// ── NAV ──
+const TITLES={dash:'Dashboard',kanban:'Serviços',orc:'Orçamentos',equipe:'Prestadores',importar:'Importar Trello'};
+function nav(p,el){
+  document.querySelectorAll('.page,.kb-page').forEach(x=>{x.classList.remove('on');});
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+  gi('p-'+p).classList.add('on');
+  if(el)el.classList.add('on');
+  gi('tb-title').textContent=TITLES[p]||p;
+  ({dash:rDash,kanban:rKanban,orc:rOrcs,equipe:rEquipe})[p]?.();
+}
+
+// ── DASHBOARD ──
+// ── UTILS FILTRO ──
+function getAllImobs(){const all=cols.flatMap(c=>c.cards);return[...new Set(all.map(c=>c.imob).filter(Boolean))].sort();}
+function syncImobSelects(){
+  const imobs=getAllImobs();
+  ['df-imob','kb-imob-filter','orc-filter-imob'].forEach(id=>{
+    const sel=gi(id);if(!sel)return;
+    const cur=sel.value;
+    sel.innerHTML='<option value="">Todas as imobiliárias</option>'+imobs.map(i=>`<option value="${i}">${i}</option>`).join('');
+    if(cur)sel.value=cur;
+  });
+}
+function setDashFilter(v,el){
+  if(v==='imob'){dashImob=gi('df-imob').value;dashFilter='all';}
+  else{dashFilter=v;dashImob='';}
+  document.querySelectorAll('#p-dash .btn').forEach(x=>{x.style.cssText='';});
+  if(el){el.style.cssText='background:var(--g);color:#fff;border-color:var(--g);';}
+  rDash();
+}
+function rDash(){
+  syncImobSelects();
+  let all=cols.flatMap(c=>c.cards).filter(c=>!c.arquivado);
+  if(dashFilter==='MNT')all=all.filter(c=>c.tipo==='MNT');
+  else if(dashFilter==='RSC')all=all.filter(c=>c.tipo==='RSC');
+  const imobSel=gi('df-imob')?.value||'';
+  if(imobSel)all=all.filter(c=>c.imob===imobSel);
+  const ativas=all.filter(c=>!['FINALIZADO','VERIFICADOS'].includes(getCardCol(c.id)?.name));
+  const exec=all.filter(c=>getCardCol(c.id)?.name==='EM ANDAMENTO');
+  const conc=all.filter(c=>['FINALIZADO','VERIFICADOS'].includes(getCardCol(c.id)?.name));
+  const pend=orcs.filter(o=>o.status==='aguardando');
+  gi('s-at').textContent=ativas.length;gi('s-ex').textContent=exec.length;
+  gi('s-cn').textContent=conc.length;gi('s-op').textContent=pend.length;
+  gi('nb-os').textContent=cols.flatMap(c=>c.cards).filter(c=>!['FINALIZADO','VERIFICADOS'].includes(getCardCol(c.id)?.name)).length;
+  gi('nb-orc').textContent=pend.length;
+  const etapas=[{n:'Contato',ks:['SOLICITAÇÃO DE VISITA','EM CONTATO']},{n:'Visita',ks:['VISITAS AGENDADA']},{n:'Orçamento',ks:['GERAR ORÇAMENTOS','ORÇAMENTO EM ANÁLISE']},{n:'Aprovado',ks:['ORÇAMENTOS APROVADOS']},{n:'Execução',ks:['EM ANDAMENTO']},{n:'Concluído',ks:['PARA PAGAMENTO','FINALIZADO','VERIFICADOS']}];
+  const vals=etapas.map(e=>cols.filter(c=>e.ks.includes(c.name)).flatMap(c=>c.cards).length);
+  const mx=Math.max(...vals,1);
+  gi('dash-bar').innerHTML=etapas.map((e,i)=>`<div class="bc"><div class="bval">${vals[i]}</div><div class="bbar" style="height:${Math.max(vals[i]/mx*88,3)}px;background:${i===4?'#924310':i===5?'#1e7a45':'#c8b8a8'}"></div><div class="blb">${e.n}</div></div>`).join('');
+  const mnt=all.filter(c=>c.tipo==='MNT').length,rsc=all.filter(c=>c.tipo==='RSC').length,tot=mnt+rsc||1;
+  gi('dash-tipo').innerHTML=`<div style="flex-shrink:0"><svg width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#e8e4de" stroke-width="18"/><circle cx="50" cy="50" r="40" fill="none" stroke="#1a6fa8" stroke-width="18" stroke-dasharray="${mnt/tot*251} 251" stroke-dashoffset="-63" transform="rotate(-90 50 50)"/><circle cx="50" cy="50" r="40" fill="none" stroke="#7c3aed" stroke-width="18" stroke-dasharray="${rsc/tot*251} 251" stroke-dashoffset="${-(63+mnt/tot*251)}" transform="rotate(-90 50 50)"/></svg></div><div class="leg"><div class="leg-item"><span class="leg-lb"><span class="leg-dot" style="background:#1a6fa8"></span>MNT</span><span class="leg-v">${mnt}</span></div><div class="leg-item"><span class="leg-lb"><span class="leg-dot" style="background:#7c3aed"></span>RSC</span><span class="leg-v">${rsc}</span></div><div class="leg-item"><span class="leg-lb"><span class="leg-dot" style="background:#e8e4de"></span>Total</span><span class="leg-v">${tot}</span></div></div>`;
+  gi('d-tbody').innerHTML=all.slice().reverse().slice(0,7).map(c=>{
+    const col=getCardCol(c.id);
+    return`<tr class="rl" onclick="verCard('${c.id}')"><td><b style="color:#924310;font-size:10px">${c.ticket||c.numimov}</b></td><td><span class="badge ${c.tipo==='MNT'?'b-mnt':'b-rsc'}">${c.tipo}</span></td><td><div style="font-size:11px;font-weight:700">${c.predio||c.numimov}</div><div style="font-size:10px;color:var(--g4)">👤 ${c.nome} · ${c.imob}</div></td><td style="font-size:10px;color:var(--g6)">${c.imob}</td><td><span class="badge ${EBADGE[col?.name]||''}">${col?.name||'—'}</span></td><td><div style="display:flex;align-items:center;gap:4px"><div class="udot" style="background:${URGCOR[c.urg]||'#d1d5db'}"></div><span style="font-size:10px">${URGTXT[c.urg]||c.urg}</span></div></td><td style="font-size:9px;color:var(--g4)">${c.criadoEm||'—'}</td></tr>`;
+  }).join('');
+}
+
+// ── KANBAN ──
+function fKb(el,v){
+  document.querySelectorAll('#kb-filters .btn').forEach(x=>{x.style.cssText='';});
+  el.style.cssText='background:var(--g);color:#fff;border-color:var(--g);';
+  kbFilter=v;rKanban();
+}
+function rKanban(){
+  const q=(gi('kb-search-q')?.value||'').toLowerCase().trim();
+  const tipoCampo=gi('kb-search-tipo')?.value||'todos';
+  const b=gi('kanban');b.innerHTML='';
+  cols.forEach(col=>{
+    let cards=col.cards;
+    cards=cards.filter(c=>!c.arquivado);
+    if(kbFilter==='MNT')cards=cards.filter(c=>c.tipo==='MNT');
+    else if(kbFilter==='RSC')cards=cards.filter(c=>c.tipo==='RSC');
+    else if(kbFilter==='urgente')cards=cards.filter(c=>['alta','urgente'].includes(c.urg));
+    if(q){
+      cards=cards.filter(c=>{
+        if(tipoCampo==='imob')return(c.imob||'').toLowerCase().includes(q);
+        if(tipoCampo==='cliente')return(c.nome||'').toLowerCase().includes(q);
+        if(tipoCampo==='imovel')return((c.numimov||'')+(c.predio||'')+(c.ticket||'')).toLowerCase().includes(q);
+        if(tipoCampo==='tipo')return c.tipo.toLowerCase().includes(q);
+        return((c.imob||'')+(c.nome||'')+(c.numimov||'')+(c.predio||'')+(c.ticket||'')+(c.tipo||'')).toLowerCase().includes(q);
+      });
+    }
+    const d=document.createElement('div');d.className='kcol';
+    // drop zone before all cards
+    const dzHtml=(idx)=>`<div class="drop-zone" id="dz-${col.id}-${idx}" ondragover="onDropZoneDragOver(event,'${col.id}',${idx})" ondragleave="this.classList.remove('active')" ondrop="onDropZoneDrop(event,'${col.id}',${idx})"></div>`;
+    const cardsHtml=cards.map((c,i)=>dzHtml(i)+kCardHTML(c,col.id)).join('')+dzHtml(cards.length);
+    d.innerHTML=`<div class="kcol-head">
+      <input class="kcol-title" value="${col.name}" onblur="renameCol('${col.id}',this.value)" onkeydown="if(event.key==='Enter')this.blur()"/>
+      <span class="kcount">${cards.length}</span>
+      <button style="background:none;border:none;cursor:pointer;color:var(--g4);font-size:12px;padding:1px 3px;" onclick="delCol('${col.id}')">⋯</button>
+    </div>
+    <div class="kcol-cards">${cardsHtml}${cards.length===0?'<div style="text-align:center;padding:12px 0;color:var(--g4);font-size:10px">Sem OS</div>':''}</div>
+    <button class="add-card-btn" onclick="openNewCard('${col.id}')">＋ Adicionar</button>`;
+    b.appendChild(d);
+    cards.forEach(c=>{
+      const el=document.getElementById('kc-'+c.id);
+      if(el){
+        el.addEventListener('click',ev=>{if(!el.classList.contains('dragging'))verCard(c.id);});
+        el.addEventListener('dragstart',ev=>onCardDragStart(ev,c.id,col.id));
+        el.addEventListener('dragend',onCardDragEnd);
+      }
+    });
+  });
+  const add=document.createElement('button');add.className='add-col-btn';add.textContent='＋ Adicionar coluna';add.onclick=addCol;b.appendChild(add);
+  const sel=gi('os-col');if(sel)sel.innerHTML=cols.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function kCardHTML(c,colId){
+  const etqsHtml=c.etqs.map(eid=>{const e=etqGlobal.find(x=>x.id===eid);return e?`<span style="display:inline-block;width:28px;height:7px;border-radius:4px;background:${e.cor};margin-right:2px;"></span>`:''}).join('');
+  const allFotos=[...(c.fotosAntes||c.fotos||[]),...(c.fotosDepois||[])];
+  const thumbs=allFotos.slice(0,3).map(f=>`<img src="${f}" style="width:32px;height:32px;border-radius:5px;object-fit:cover;border:1px solid var(--g2)">`).join('');
+  return`<div class="kcard" id="kc-${c.id}" draggable="true">
+    <div style="display:flex;gap:3px;margin-bottom:5px;flex-wrap:wrap;">${etqsHtml}<span class="badge ${c.tipo==='MNT'?'b-mnt':'b-rsc'}" style="font-size:8px;padding:1px 5px">${c.tipo}</span></div>
+    <div class="kcard-id">${c.ticket||c.numimov}</div>
+    <div class="kcard-title">${c.predio||c.numimov}</div>
+    <div class="kcard-sub">👤 ${c.nome}<span style="color:var(--g4)"> · ${c.imob}</span></div>
+    ${thumbs?`<div style="display:flex;gap:3px;margin-bottom:6px">${thumbs}</div>`:''}
+    <div class="kcard-foot">
+      <div>${c.coments.length?`<span class="kci">💬${c.coments.length}</span>`:''} ${c.docs.length?`<span class="kci">📄${c.docs.length}</span>`:''} ${allFotos.length?`<span class="kci">📷${allFotos.length}</span>`:''}</div>
+      <div style="display:flex;align-items:center;gap:3px"><div class="udot" style="background:${URGCOR[c.urg]||'#d1d5db'}"></div><span style="font-size:9px;color:var(--g4)">${URGTXT[c.urg]||''}</span></div>
+    </div>
+    ${c.criadoEm?`<div style="font-size:8px;color:var(--g4);margin-top:4px;border-top:1px solid var(--g2);padding-top:3px;">🕐 ${c.criadoEm}</div>`:''}
+  </div>`;
+}
+
+// ── DETALHE ──
+let editMode=false;
+function verCard(id){
+  detId=id;editMode=false;
+  const c=getCard(id);if(!c)return;
+  const col=getCardCol(id);
+  const etqsHtml=c.etqs.map(eid=>{const e=etqGlobal.find(x=>x.id===eid);return e?`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;background:${e.cor}22;color:${e.cor};border:1px solid ${e.cor}44">${e.nome}</span>`:''}).join('');
+  gi('det-h').innerHTML=`<div class="det-ht">${c.tipo==='MNT'?'Manutenção':'Rescisão'} · ${col?.name||''} · ${c.imob}</div>
+    <div class="det-hi">${c.ticket||c.numimov} — ${c.predio||''}</div>
+    <div class="det-hb">${etqsHtml}<span class="det-hbd">👤 ${c.nome}</span><span class="det-hbd">📱 ${c.tel}</span><span class="det-hbd">${URGTXT[c.urg]||c.urg}</span></div>`;
+  rInfoTab(c,col);
+  rComents(c);rDocs(c);rFotoGrid(c);
+  gi('m-det').querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  gi('m-det').querySelectorAll('.tabc').forEach((t,i)=>t.classList.toggle('on',i===0));
+  const btnArq=gi('btn-arquivar');if(btnArq)btnArq.textContent=c.arquivado?'📤 Restaurar':'📁 Arquivar';
+  openM('m-det');
+}
+
+function rInfoTab(c,col){
+  if(!editMode){
+    const urgBg={urgente:'#fee2e2',alta:'#fee2e2',media:'#fef3cd',baixa:'#d1fae5',normal:'var(--g1)'}[c.urg]||'var(--g1)';
+    gi('t-info').innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px">
+        ${[['Nº Imóvel / Contrato',c.numimov||'—'],['Prédio / Referência',c.predio||'—'],['Endereço',c.end||'—'],['Locatário',c.nome],['Contato',c.tel||'—'],['Imobiliária',c.imob||'—'],['Responsável',c.resp||'—'],['Urgência',`<span style="padding:2px 9px;border-radius:6px;background:${urgBg};font-weight:700;font-size:11px">${URGTXT[c.urg]||c.urg}</span>`]].map(([l,v])=>`<div><div style="font-size:9px;color:var(--g4);margin-bottom:2px">${l}</div><div style="font-size:12px;font-weight:700">${v}</div></div>`).join('')}
+      </div>
+      <div style="background:var(--g1);border-radius:8px;padding:9px;margin-bottom:11px">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;color:var(--g6);margin-bottom:5px">O que precisa ser feito</div>
+        <div style="font-size:12px;color:var(--g8);line-height:1.5">${c.oque||'—'}</div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;color:var(--g6);margin-bottom:6px">Mover para</div>
+        <div class="move-wrap">${cols.map(cl=>`<button class="btn bxs ${getCardCol(c.id)?.id===cl.id?'bgr':'bg'}" onclick="moverCard('${c.id}','${cl.id}')">${cl.name}</button>`).join('')}</div>
+      </div>
+      <button class="btn bg bsm" onclick="toggleEditMode()">✏️ Editar Informações</button>`;
+  } else {
+    gi('t-info').innerHTML=`
+      <div class="fsect" style="margin-top:0">Imóvel</div>
+      <div class="fr" style="margin-bottom:10px">
+        <div class="fl" style="margin:0"><label class="lb">Nº Imóvel / Contrato</label><input class="fi" id="ed-numimov" value="${c.numimov||''}"/></div>
+        <div class="fl" style="margin:0"><label class="lb">Prédio / Referência</label><input class="fi" id="ed-predio" value="${c.predio||''}"/></div>
+      </div>
+      <div class="fl"><label class="lb">Endereço</label>
+        <div class="ac-wrap"><input class="fi" id="ed-end" value="${c.end||''}" autocomplete="off" oninput="acSearch(this.value,'ac-ed')"/><div class="ac-list" id="ac-ed"></div></div>
+      </div>
+      <div class="fsect">Locatário</div>
+      <div class="fr" style="margin-bottom:10px">
+        <div class="fl" style="margin:0"><label class="lb">Nome</label><input class="fi" id="ed-nome" value="${c.nome||''}"/></div>
+        <div class="fl" style="margin:0"><label class="lb">Contato</label><input class="fi" id="ed-tel" value="${c.tel||''}"/></div>
+      </div>
+      <div class="fsect">Imobiliária</div>
+      <div class="fr" style="margin-bottom:10px">
+        <div class="fl" style="margin:0"><label class="lb">Imobiliária</label><input class="fi" id="ed-imob" value="${c.imob||''}"/></div>
+        <div class="fl" style="margin:0"><label class="lb">Responsável</label><input class="fi" id="ed-resp" value="${c.resp||''}"/></div>
+      </div>
+      <div class="fr" style="margin-bottom:10px">
+        <div class="fl" style="margin:0"><label class="lb">Nº Ticket / OS</label><input class="fi" id="ed-ticket" value="${c.ticket||''}"/></div>
+        <div class="fl" style="margin:0"><label class="lb">Tipo</label>
+          <select class="fs" id="ed-tipo"><option value="MNT" ${c.tipo==='MNT'?'selected':''}>🔧 MNT — Manutenção</option><option value="RSC" ${c.tipo==='RSC'?'selected':''}>📋 RSC — Rescisão</option></select>
+        </div>
+      </div>
+      <div class="fl"><label class="lb">O que precisa ser feito</label><textarea class="ft" id="ed-oque">${c.oque||''}</textarea></div>
+      <div class="fl">
+        <label class="lb">Urgência</label>
+        <div class="urg-row">
+          ${['urgente','alta','media','baixa','normal'].map(u=>{
+            const styles={urgente:'background:#fee2e2;border-color:#b91c1c;color:#b91c1c',alta:'background:#fee2e2;border-color:#b91c1c;color:#b91c1c',media:'background:#fef3cd;border-color:#92400e;color:#92400e',baixa:'background:#d1fae5;border-color:#065f46;color:#065f46',normal:'background:var(--g2);border-color:var(--g4);color:var(--g6)'};
+            const on=c.urg===u;
+            return`<button class="uopt ${on?'on':''}" data-u="${u}" onclick="setEdUrg(this)" style="${on?styles[u]:''}">${u==='urgente'?'🔴 Urgente':u==='alta'?'Alta':u==='media'?'Média':u==='baixa'?'Baixa':'Normal'}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button class="btn bp bsm" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+        <button class="btn bg bsm" onclick="toggleEditMode()">Cancelar</button>
+      </div>`;
+  }
+}
+function setEdUrg(el){
+  el.closest('.urg-row').querySelectorAll('.uopt').forEach(x=>{x.classList.remove('on');x.style.cssText='';});
+  el.classList.add('on');
+  const styles={urgente:'background:#fee2e2;border-color:#b91c1c;color:#b91c1c',alta:'background:#fee2e2;border-color:#b91c1c;color:#b91c1c',media:'background:#fef3cd;border-color:#92400e;color:#92400e',baixa:'background:#d1fae5;border-color:#065f46;color:#065f46',normal:'background:var(--g2);border-color:var(--g4);color:var(--g6)'};
+  el.style.cssText=styles[el.dataset.u]||'';
+}
+function toggleEditMode(){
+  editMode=!editMode;
+  const c=getCard(detId);const col=getCardCol(detId);
+  rInfoTab(c,col);
+}
+function salvarEdicao(){
+  const c=getCard(detId);if(!c)return;
+  c.numimov=gv('ed-numimov');c.predio=gv('ed-predio');c.end=gv('ed-end');
+  c.nome=gv('ed-nome');c.tel=gv('ed-tel');c.imob=gv('ed-imob');c.resp=gv('ed-resp');
+  c.ticket=gv('ed-ticket');c.tipo=gv('ed-tipo');c.oque=gv('ed-oque');
+  const sel=gi('m-det').querySelector('.urg-row .uopt.on');
+  if(sel)c.urg=sel.dataset.u;
+  editMode=false;
+  toast('Informações atualizadas!');
+  rDash();rKanban();
+  verCard(detId);
+}
+
+// ── ARQUIVAR / EXCLUIR CARD ──
+function arquivarCard(cid){
+  const c=getCard(cid);if(!c)return;
+  c.arquivado=!c.arquivado;
+  toast(c.arquivado?'OS arquivada.':'OS restaurada.');
+  closeM('m-det');rDash();rKanban();
+}
+function delCard(cid){
+  if(!confirm('Excluir esta OS permanentemente? Esta ação não pode ser desfeita.'))return;
+  cols.forEach(col=>{col.cards=col.cards.filter(k=>k.id!==cid);});
+  closeM('m-det');toast('OS excluída.');rDash();rKanban();
+}
+
+function moverCard(cid,colId){
+  const card=getCard(cid);if(!card)return;
+  cols.forEach(c=>{c.cards=c.cards.filter(k=>k.id!==cid);});
+  const col=cols.find(c=>c.id===colId);if(col)col.cards.unshift(card);
+  toast('Movido para: '+col?.name);closeM('m-det');rDash();rKanban();
+}
+function proxEtapa(){
+  const c=getCard(detId);if(!c)return;
+  const col=getCardCol(detId);
+  const idx=ETAPA_SEQ.indexOf(col?.name);
+  if(idx>=0&&idx<ETAPA_SEQ.length-1){moverCard(detId,cols.find(x=>x.name===ETAPA_SEQ[idx+1])?.id);}
+}
+function voltarEtapa(){
+  const c=getCard(detId);if(!c)return;
+  const col=getCardCol(detId);
+  const idx=ETAPA_SEQ.indexOf(col?.name);
+  if(idx>0){moverCard(detId,cols.find(x=>x.name===ETAPA_SEQ[idx-1])?.id);}
+  else toast('Já está na primeira etapa.');
+}
+function rComents(c){
+  const el=gi('cm-list');if(!el)return;
+  el.innerHTML=c.coments.length?c.coments.map(cm=>`<div class="cm-item"><div class="cm-meta">👤 ${cm.a} · ${cm.dt}</div><div class="cm-text">${cm.t}</div></div>`).join(''):'<div style="text-align:center;padding:16px;color:var(--g4);font-size:11px">Sem registros ainda.</div>';
+}
+function addComent(){
+  const c=getCard(detId);if(!c)return;
+  const txt=gv('cm-in');if(!txt)return;
+  const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  c.coments.push({a:'Administrativo',dt:'Hoje '+now,t:txt});
+  sv('cm-in','');rComents(c);rDash();toast('Comentário registrado!');
+}
+function rDocs(c){
+  const el=gi('doc-list');if(!el)return;
+  el.innerHTML=c.docs.length?c.docs.map((d,i)=>`<div class="doc-item"><div style="flex:1;cursor:pointer" onclick="verDoc('${c.id}',${i})"><div style="font-size:11px;font-weight:700">${{orc:'💰 Orçamento',lv:'🔍 Laudo de Visita',lp:'✅ Laudo Pós-Serviço'}[d.tipo]} ${d.val?'— '+fmtR(d.val):''}</div><div style="font-size:10px;color:var(--g4)">${d.dt}</div></div><div style="display:flex;gap:4px"><button class="btn bg bxs" onclick="verDoc('${c.id}',${i})">📄 Ver</button><button class="btn bg bxs" style="color:var(--red)" onclick="delDoc('${c.id}',${i})" title="Excluir">🗑</button></div></div>`).join(''):'<div style="text-align:center;padding:16px;color:var(--g4);font-size:11px">Nenhum documento gerado.</div>';
+}
+function delDoc(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  if(confirm('Excluir este documento? Esta ação não pode ser desfeita.')){
+    c.docs.splice(idx,1);rDocs(c);rDash();toast('Documento excluído.');
+  }
+}
+function verDoc(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  const d=c.docs[idx];if(!d)return;
+  const tmp=document.createElement('div');tmp.className='ov on';tmp.id='m-doc-view';
+  let body='';
+  if(d.tipo==='orc'){
+    const itensHtml=(d.itens||[]).map((it,i)=>`<div class="oi-row" style="cursor:default"><div class="oi-num">${String(i+1).padStart(2,'0')}</div><div style="font-size:11px;padding:4px 0">${it.desc||'—'}</div><div style="font-size:10px;text-align:right">${fmtR(it.mdo)}</div><div style="font-size:10px;text-align:right">${fmtR(it.mat)}</div><div class="oi-tot">${fmtR((parseFloat(it.mdo)||0)+(parseFloat(it.mat)||0))}</div><div></div></div>`).join('');
+    body=`
+      <div class="lsect"><div class="lsect-t">Informações</div>
+        <div style="font-size:12px;line-height:1.8">
+          <b>Nº:</b> ${d.num||'—'} &nbsp;·&nbsp; <b>Data:</b> ${d.dt}<br>
+          <b>Tipo:</b> ${d.subtipo||'—'} &nbsp;·&nbsp; <b>Imobiliária:</b> ${d.imob||'—'} &nbsp;·&nbsp; <b>Aos cuidados de:</b> ${d.cuid||'—'}<br>
+          <b>Imóvel:</b> ${d.imovel||'—'}<br>
+          <b>Cliente:</b> ${d.cli||'—'} &nbsp;·&nbsp; <b>Contato:</b> ${d.cont||'—'}
+        </div>
+      </div>
+      ${d.diag?`<div class="lsect"><div class="lsect-t">Diagnóstico Técnico</div><div style="font-size:12px;line-height:1.6">${d.diag}</div></div>`:''}
+      <div class="lsect"><div class="lsect-t">Itens</div>
+        <div class="oi-head"><span>Nº</span><span>Descrição</span><span style="text-align:right">M.O.</span><span style="text-align:right">Material</span><span style="text-align:right">Total</span><span></span></div>
+        ${itensHtml}
+        <div style="display:flex;justify-content:flex-end;padding-top:8px">
+          <div style="background:var(--g);border-radius:7px;padding:7px 14px;display:flex;align-items:center;gap:9px;"><span style="color:var(--cr);font-size:10px;">Total</span><strong style="color:#fff;font-size:13px;">${fmtR(d.val)}</strong></div>
+        </div>
+      </div>
+      ${d.obs?`<div class="lsect"><div class="lsect-t">Observações Gerais</div><div style="font-size:12px;line-height:1.6">${d.obs}</div></div>`:''}
+      <div class="lsect"><div class="lsect-t">Condições</div>
+        <div style="font-size:12px;line-height:1.8"><b>Prazo:</b> ${d.prazo||'—'} &nbsp;·&nbsp; <b>Garantia:</b> ${d.gar||'—'} &nbsp;·&nbsp; <b>Pagamento:</b> ${d.pgto||'—'}</div>
+      </div>
+      ${(d.fotosAntes&&d.fotosAntes.length)?`<div class="lsect"><div class="lsect-t">Fotos do Imóvel</div><div style="display:flex;flex-wrap:wrap;gap:6px">${d.fotosAntes.map(f=>`<img src="${f}" style="width:70px;height:55px;object-fit:cover;border-radius:6px;border:1px solid var(--g2)">`).join('')}</div></div>`:''}`;
+  } else if(d.tipo==='lv'){
+    body=`
+      <div class="lsect"><div class="lsect-t">Dados da Visita</div><div style="font-size:12px;line-height:1.8"><b>Data:</b> ${d.data||'—'} &nbsp;·&nbsp; <b>Técnico:</b> ${d.tec||'—'}</div></div>
+      <div class="lsect"><div class="lsect-t">Problemas Identificados</div><div style="font-size:12px;line-height:1.6">${d.prob||'—'}</div></div>
+      <div class="lsect"><div class="lsect-t">Conclusão</div><div style="font-size:12px;line-height:1.6">${d.conc||'—'}</div></div>`;
+  } else if(d.tipo==='lp'){
+    const s=d.snapshot||{};
+    const isRSC=s.tipo==='RSC';
+    const fotoGrid=(fotos)=>(fotos&&fotos.length)?`<div style="display:flex;flex-wrap:wrap;gap:6px">${fotos.map(f=>`<img src="${f}" style="width:70px;height:55px;object-fit:cover;border-radius:6px;border:1px solid var(--g2)">`).join('')}</div>`:'<div style="font-size:11px;color:var(--g4)">Nenhuma foto registrada.</div>';
+    const checkHtml=(d.check||[]).map(it=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px"><span style="width:18px;height:18px;border-radius:5px;background:${it.done?'var(--g)':'var(--g2)'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">${it.done?'✓':''}</span>${it.label}</div>`).join('');
+    body=`
+      <div class="lsect"><div class="lsect-t">Dados do Imóvel</div>
+        <div style="font-size:12px;line-height:1.8">
+          <b>Nº Imóvel/Contrato:</b> ${s.numimov||'—'} &nbsp;·&nbsp; <b>Prédio:</b> ${s.predio||'—'}<br>
+          <b>Endereço:</b> ${s.end||'—'}<br>
+          <b>Locatário:</b> ${s.nome||'—'} &nbsp;·&nbsp; <b>Contato:</b> ${s.tel||'—'}<br>
+          <b>Imobiliária:</b> ${s.imob||'—'} &nbsp;·&nbsp; <b>Responsável:</b> ${s.resp||'—'}<br>
+          <b>Ticket:</b> ${s.ticket||'—'} &nbsp;·&nbsp; <b>Tipo:</b> ${s.tipo||'—'}
+        </div>
+      </div>
+      <div class="lsect"><div class="lsect-t">Execução</div><div style="font-size:12px;line-height:1.8"><b>Data:</b> ${d.data||'—'} &nbsp;·&nbsp; <b>Prestador:</b> ${d.prest||'—'}</div></div>
+      ${isRSC?'':`<div class="lsect"><div class="lsect-t">Problema Identificado</div><div style="font-size:12px;line-height:1.6">${d.problema||'—'}</div></div>`}
+      <div class="lsect"><div class="lsect-t">${isRSC?'Serviços Executados':'Solução Aplicada'}</div><div style="font-size:12px;line-height:1.6">${d.serv||'—'}</div></div>
+      <div class="lsect"><div class="lsect-t">Observações / Garantia</div><div style="font-size:12px;line-height:1.6">${d.obs||'—'}</div></div>
+      ${(!isRSC&&d.fotosAntes&&d.fotosAntes.length)?`<div class="lsect"><div class="lsect-t">Fotos — Antes</div>${fotoGrid(d.fotosAntes)}</div>`:''}
+      <div class="lsect"><div class="lsect-t">${(!isRSC&&d.fotosAntes&&d.fotosAntes.length)?'Fotos — Depois':'Fotos'}</div>${fotoGrid(d.fotosDepois)}</div>
+      <div class="lsect"><div class="lsect-t">Checklist Final</div>${checkHtml}</div>`;
+  }
+  const downloadBtn=`<button class="btn bp bsm" onclick="gerarPDF('${cid}',${idx})">⬇️ Gerar PDF</button>`;
+  const editBtn=d.tipo==='orc'?`<button class="btn bgr bsm" onclick="editarOrc('${cid}',${idx})">✏️ Editar</button>`:'';
+  tmp.innerHTML=`<div class="mo mo-lg">
+    <div class="moh"><div class="mot">${{orc:'💰 Orçamento',lv:'🔍 Laudo de Visita',lp:'✅ Laudo Pós-Serviço'}[d.tipo]} — ${d.dt}</div><button class="mox" onclick="document.getElementById('m-doc-view').remove()">✕</button></div>
+    <div class="mob" style="padding-bottom:16px">${body}</div>
+    <div class="mof"><button class="btn bg bsm" onclick="document.getElementById('m-doc-view').remove()">Fechar</button><div style="flex:1"></div>${editBtn}${downloadBtn}</div>
+  </div>`;
+  tmp.addEventListener('click',ev=>{if(ev.target===tmp)tmp.remove();});
+  document.body.appendChild(tmp);
+}
+const LP_CHECK_MNT=['Serviço realizado','Danos reparados','Local organizado','Informações passadas ao locatário'];
+const LP_CHECK_RSC=['Serviço finalizado','Local limpo e organizado','Chaves entregues ao responsável'];
+function rLpChecklist(items,checked){
+  gi('lp-checklist').innerHTML=items.map((it,i)=>`<div class="checklist-item" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g2);font-size:12px;">
+    <div class="check-box" id="lp-chk-${i}" data-on="${checked&&checked[i]?'1':'0'}" onclick="lpToggleChk(${i})" style="width:18px;height:18px;border-radius:5px;border:2px solid ${checked&&checked[i]?'var(--g)':'var(--g2)'};background:${checked&&checked[i]?'var(--g)':'#fff'};color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;cursor:pointer;">${checked&&checked[i]?'✓':''}</div>
+    <span>${it}</span>
+  </div>`).join('');
+}
+function lpToggleChk(i){
+  const el=gi('lp-chk-'+i);
+  const on=el.dataset.on==='1';
+  el.dataset.on=on?'0':'1';
+  el.style.background=on?'#fff':'var(--g)';
+  el.style.borderColor=on?'var(--g2)':'var(--g)';
+  el.textContent=on?'':'✓';
+}
+function lpGetChecklist(items){
+  return items.map((_,i)=>gi('lp-chk-'+i)?.dataset.on==='1');
+}
+
+function gerarDoc(tipo){
+  if(tipo==='orc'){
+    orcEditId=null;
+    oiItems=[{id:1,desc:'',mdo:'',mat:''},{id:2,desc:'',mdo:'',mat:''}];
+    const c=getCard(detId);
+    if(c){
+      sv('oc-imovel',c.end||c.predio);
+      sv('oc-cli',c.nome);
+      sv('oc-cont',c.tel);
+      sv('oc-imob',c.imob);
+      sv('oc-cuid',c.resp);
+      setOrcTipo(c.tipo);
+      sv('oc-num',c.numimov||c.predio||'');
+    }
+    rOI();closeM('m-det');openM('m-orc');
+    gi('orc-title').textContent='Novo Orçamento';gi('orc-sub').textContent='';
+    sv('oc-data',new Date().toISOString().split('T')[0]);
+  }
+  else if(tipo==='lv'){sv('lv-data',new Date().toISOString().split('T')[0]);['lv-tec','lv-prob','lv-conc'].forEach(i=>sv(i,''));closeM('m-det');openM('m-lv');}
+  else if(tipo==='lp'){
+    const c=getCard(detId);
+    sv('lp-data',new Date().toISOString().split('T')[0]);
+    ['lp-prest','lp-serv','lp-obs','lp-problema','lp-servicos-rsc'].forEach(i=>sv(i,''));
+    gi('lp-info').innerHTML=c?`
+      <b>Nº Imóvel/Contrato:</b> ${c.numimov||'—'} &nbsp;·&nbsp; <b>Prédio:</b> ${c.predio||'—'}<br>
+      <b>Endereço:</b> ${c.end||'—'}<br>
+      <b>Locatário:</b> ${c.nome||'—'} &nbsp;·&nbsp; <b>Contato:</b> ${c.tel||'—'}<br>
+      <b>Imobiliária:</b> ${c.imob||'—'} &nbsp;·&nbsp; <b>Responsável:</b> ${c.resp||'—'}<br>
+      <b>Ticket:</b> ${c.ticket||'—'} &nbsp;·&nbsp; <b>Tipo:</b> ${c.tipo}`:'';
+    if(c?.tipo==='RSC'){
+      gi('lp-title').textContent='Laudo Pós-Serviço — Rescisão (RSC)';
+      gi('lp-mnt-fields').style.display='none';
+      gi('lp-rsc-fields').style.display='';
+      gi('lp-check-title').textContent='Checklist Final';
+      rLpChecklist(LP_CHECK_RSC);
+    } else {
+      gi('lp-title').textContent='Laudo Pós-Serviço — Manutenção (RPS)';
+      gi('lp-mnt-fields').style.display='';
+      gi('lp-rsc-fields').style.display='none';
+      sv('lp-problema',c?.oque||'');
+      gi('lp-check-title').textContent='Checklist Final';
+      rLpChecklist(LP_CHECK_MNT);
+    }
+    closeM('m-det');openM('m-lp');
+  }
+}
+function salvarDoc(tipo,label){
+  const c=getCard(detId);if(!c)return;
+  const dt=new Date().toLocaleDateString('pt-BR');
+  let extra={};
+  if(tipo==='lv')extra={data:gv('lv-data'),tec:gv('lv-tec'),prob:gv('lv-prob'),conc:gv('lv-conc')};
+  if(tipo==='lp'){
+    const checkItems=c.tipo==='RSC'?LP_CHECK_RSC:LP_CHECK_MNT;
+    extra={
+      data:gv('lp-data'),prest:gv('lp-prest'),
+      problema:gv('lp-problema'),serv:c.tipo==='RSC'?gv('lp-servicos-rsc'):gv('lp-serv'),
+      obs:gv('lp-obs'),
+      check:checkItems.map((label,i)=>({label,done:lpGetChecklist(checkItems)[i]})),
+      snapshot:{numimov:c.numimov,predio:c.predio,end:c.end,nome:c.nome,tel:c.tel,imob:c.imob,resp:c.resp,ticket:c.ticket,tipo:c.tipo},
+      fotosAntes:c.tipo==='RSC'?[]:[...(c.fotosAntes||c.fotos||[])],
+      fotosDepois:[...(c.fotosDepois||[])]
+    };
+  }
+  const doc={tipo,label,dt,val:0,...extra};
+  c.docs.push(doc);
+  closeM('m-'+tipo);rDocs(c);rDash();toast(label+' salvo no cartão!');
+  verDoc(c.id,c.docs.length-1);
+}
+
+// ── GERAR PDF LAUDO PÓS-SERVIÇO (RPS) ──
+// ── DISPATCHER PDF ──
+function gerarPDF(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  const d=c.docs[idx];if(!d)return;
+  if(d.tipo==='lp')gerarPDFLaudoPos(d);
+  else if(d.tipo==='orc')gerarPDFOrcamento(d,c);
+  else if(d.tipo==='lv')gerarPDFLaudoVisita(d,c);
+}
+
+// ── PDF ORÇAMENTO ──
+function gerarPDFOrcamento(d,c){
+  const jsPDFlib=(window.jspdf||{}).jsPDF;
+  if(!jsPDFlib){toast('Carregando biblioteca de PDF, tente novamente em 2s...');return;}
+  const doc=new jsPDFlib({unit:'mm',format:'a4'});
+  const PW=210,ML=14,CW=182;
+  const VERDE=[55,61,49],TERRA=[146,67,16],CINZA=[107,104,96],CINZAFUNDO=[246,244,240],BRANCO=[255,255,255];
+  let y=0;
+
+  doc.setFillColor(...VERDE);doc.rect(0,0,PW,30,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);
+  doc.text('Homefix',ML,13);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(200,210,195);
+  doc.text('SERVIÇOS E MANUTENÇÃO',ML,18.5);
+  doc.setTextColor(150,165,140);
+  doc.text('CNPJ 57.017.878/0001-57  |  (47) 99222-6125  |  www.homefix.com',ML,24);
+  doc.setFillColor(...TERRA);doc.rect(PW-62,5,48,20,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');
+  doc.setFontSize(9);doc.text('ORÇAMENTO',PW-38,12,{align:'center'});
+  doc.setFontSize(8);doc.text(d.subtipo==='RSC'?'RESCISÃO (RSC)':'MANUTENÇÃO (MNT)',PW-38,17.5,{align:'center'});
+  doc.setFontSize(7);doc.text('Nº '+(d.num||'—'),PW-38,22.5,{align:'center'});
+
+  y=38;
+  doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('  INFORMAÇÕES DO ORÇAMENTO',ML+1,y+5.2);y+=9;
+  const info=[
+    ['Imóvel:',d.imovel||'—'],
+    [d.subtipo==='RSC'?'Cliente / Locatário:':'Inquilino:',d.cli||'—'],
+    ['Contato:',d.cont||'—'],
+    ['Imobiliária:',d.imob||'—'],
+    ['Aos cuidados de:',d.cuid||'—'],
+    ['Data de emissão:',d.dt||'—'],
+  ];
+  info.forEach((r,i)=>{
+    const wrapped=doc.splitTextToSize(r[1],CW-42);
+    const rowH=Math.max(7,wrapped.length*5+2);
+    doc.setFillColor(...(i%2===0?CINZAFUNDO:BRANCO));doc.rect(ML,y-4.8,CW,rowH,'F');
+    doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.setFontSize(8.5);
+    doc.text(r[0],ML+2,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);
+    doc.text(wrapped,ML+38,y);
+    y+=rowH;
+  });
+  y+=4;
+
+  if(d.diag){
+    doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('  DIAGNÓSTICO TÉCNICO',ML+1,y+5);y+=9;
+    doc.setTextColor(...CINZA);doc.setFont('helvetica','normal');doc.setFontSize(9);
+    const lines=doc.splitTextToSize(d.diag,CW-8);
+    const h=lines.length*5.2+6;
+    if(y+h>278){doc.addPage();y=15;}
+    doc.setFillColor(...CINZAFUNDO);doc.rect(ML,y,CW,h,'F');
+    doc.text(lines,ML+4,y+6);y+=h+4;
+  }
+
+  const itens=d.itens||[];
+  const total=itens.reduce((s,i)=>s+(parseFloat(i.mdo)||0)+(parseFloat(i.mat)||0),0);
+  doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('  ITENS DO ORÇAMENTO',ML+1,y+5);y+=8;
+  doc.setFillColor(...TERRA);doc.rect(ML,y,CW,6,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(7.5);
+  doc.text('Nº',ML+4,y+4,{align:'center'});doc.text('Descrição',ML+11,y+4);
+  doc.text('M.O.',ML+CW-55,y+4,{align:'right'});doc.text('Material',ML+CW-25,y+4,{align:'right'});doc.text('Total',ML+CW-2,y+4,{align:'right'});y+=6;
+  itens.forEach((it,idx)=>{
+    const mdo=parseFloat(it.mdo)||0,mat=parseFloat(it.mat)||0,tot=mdo+mat;
+    const wrapped=doc.splitTextToSize(it.desc||'—',CW-65);
+    const rowH=Math.max(7,wrapped.length*5+2);
+    if(y+rowH>280){doc.addPage();y=15;}
+    doc.setFillColor(...(idx%2===0?BRANCO:CINZAFUNDO));doc.rect(ML,y,CW,rowH,'F');
+    doc.setTextColor(...TERRA);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(String(idx+1).padStart(2,'0'),ML+4,y+4.8,{align:'center'});
+    doc.setTextColor(...CINZA);doc.setFont('helvetica','normal');
+    doc.text(wrapped,ML+11,y+4.8);
+    doc.text(mdo>0?fmtR(mdo):'—',ML+CW-55,y+4.8,{align:'right'});
+    doc.text(mat>0?fmtR(mat):'—',ML+CW-25,y+4.8,{align:'right'});
+    doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);
+    doc.text(fmtR(tot),ML+CW-2,y+4.8,{align:'right'});y+=rowH;
+  });
+  y+=3;
+  doc.setFillColor(...VERDE);doc.rect(ML,y,CW,11,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');
+  doc.setFontSize(9);doc.text('VALOR TOTAL DO ORÇAMENTO',ML+4,y+7.5);
+  doc.setFontSize(12);doc.text(fmtR(total),ML+CW-2,y+7.5,{align:'right'});y+=16;
+
+  y+=5;
+  doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('  CONDIÇÕES DO SERVIÇO',ML+1,y+5);y+=10;
+  doc.setTextColor(...CINZA);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text('Prazo de execução: '+(d.prazo||'—'),ML,y);y+=6;
+  doc.text('Garantia: '+(d.gar||'—'),ML,y);y+=6;
+  doc.text('Pagamento: '+(d.pgto||'—'),ML,y);y+=10;
+
+  if(d.obs){
+    doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('  OBSERVAÇÕES GERAIS',ML+1,y+5);y+=9;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);
+    const lines=doc.splitTextToSize(d.obs,CW-8);
+    const h=lines.length*5.2+6;
+    if(y+h>278){doc.addPage();y=15;}
+    doc.setFillColor(...CINZAFUNDO);doc.rect(ML,y,CW,h,'F');
+    doc.setTextColor(...CINZA);doc.text(lines,ML+4,y+6);y+=h+5;
+  }
+
+  if(d.fotosAntes&&d.fotosAntes.length){
+    if(y>250){doc.addPage();y=15;}
+    doc.setFillColor(...VERDE);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('  FOTOS DO IMÓVEL',ML+1,y+5);y+=10;
+    const w=55,h=42,gap=6;let x=ML;
+    d.fotosAntes.forEach(f=>{
+      if(x+w>ML+CW){x=ML;y+=h+gap;}
+      if(y+h>280){doc.addPage();y=15;x=ML;}
+      try{doc.addImage(f,'JPEG',x,y,w,h);}catch(e){}
+      doc.setDrawColor(...CINZAFUNDO);doc.rect(x,y,w,h);
+      x+=w+gap;
+    });
+    y+=h+10;
+  }
+
+  if(y>270){doc.addPage();y=20;}
+  doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.setFontSize(10);
+  doc.text('Conrado',ML,y);
+  doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);doc.setFontSize(8);
+  doc.text('HomeFix Serviços e Manutenção  |  CNPJ 57.017.878/0001-57',ML,y+5.5);
+
+  doc.setDrawColor(...CINZAFUNDO);doc.setLineWidth(0.3);
+  doc.line(ML,285,PW-ML,285);
+  doc.setTextColor(...VERDE);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+  doc.text('HomeFix Serviços e Manutenção  |  (47) 99222-6125  |  www.homefix.com  |  Balneário Camboriú - SC',ML,289);
+
+  doc.save('ORÇAMENTO '+(d.num||'').toUpperCase()+'.pdf');
+  toast('PDF do Orçamento gerado!');
+}
+
+// ── PDF LAUDO DE VISITA ──
+function gerarPDFLaudoVisita(d,c){
+  const jsPDFlib=(window.jspdf||{}).jsPDF;
+  if(!jsPDFlib){toast('Carregando biblioteca de PDF, tente novamente em 2s...');return;}
+  const doc=new jsPDFlib({unit:'mm',format:'a4'});
+  const PW=210,ML=14,CW=182;
+  const VERDE=[55,61,49],MARROM=[164,116,82],CINZA=[107,104,96],CINZAFUNDO=[246,244,240],BRANCO=[255,255,255];
+  let y=0;
+
+  doc.setFillColor(...VERDE);doc.rect(0,0,PW,30,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text('HomeFix',ML,13);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(200,210,195);
+  doc.text('SERVIÇOS E MANUTENÇÃO',ML,18.5);
+  doc.setTextColor(150,165,140);
+  doc.text('CNPJ 57.017.878/0001-57  |  (47) 99222-6125  |  www.homefix.com',ML,24);
+  doc.setFillColor(...MARROM);doc.rect(PW-62,5,48,20,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+  doc.text('LAUDO DE VISITA TÉCNICA',PW-38,12,{align:'center'});
+  doc.setFontSize(7);doc.text(c.ticket||c.numimov||'',PW-38,18,{align:'center'});
+
+  function sectionHeader(title){
+    if(y>270){doc.addPage();y=15;}
+    doc.setFillColor(...MARROM);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+    doc.text('  '+title,ML+1,y+5);y+=10;
+  }
+  function textBlock(text){
+    doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    const lines=doc.splitTextToSize(text||'—',CW-8);
+    const h=lines.length*5.2+6;
+    if(y+h>278){doc.addPage();y=15;}
+    doc.setFillColor(...CINZAFUNDO);doc.rect(ML,y,CW,h,'F');
+    doc.setTextColor(...CINZA);doc.text(lines,ML+4,y+6);y+=h+5;
+  }
+
+  y=38;
+  sectionHeader('DADOS DO IMÓVEL');
+  doc.setTextColor(...CINZA);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  const linhas1=[
+    ['Nº Imóvel/Contrato:',c.numimov||'—','Prédio/Referência:',c.predio||'—'],
+    ['Endereço:',c.end||'—','',''],
+    ['Locatário:',c.nome||'—','Contato:',c.tel||'—'],
+    ['Imobiliária:',c.imob||'—','Responsável:',c.resp||'—'],
+    ['Data da Visita:',d.data||'—','Técnico:',d.tec||'—'],
+  ];
+  linhas1.forEach((l,i)=>{
+    const wrapped1=doc.splitTextToSize(l[1],75);
+    const rowH=Math.max(7,wrapped1.length*5+2);
+    doc.setFillColor(...(i%2===0?CINZAFUNDO:BRANCO));doc.rect(ML,y-4.5,CW,rowH,'F');
+    doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.text(l[0],ML+3,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);doc.text(wrapped1,ML+38,y);
+    if(l[2]){doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.text(l[2],ML+105,y);doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);doc.text(doc.splitTextToSize(l[3],50),ML+140,y);}
+    y+=rowH;
+  });
+  y+=5;
+
+  sectionHeader('PROBLEMAS IDENTIFICADOS');
+  textBlock(d.prob);
+
+  sectionHeader('CONCLUSÃO');
+  textBlock(d.conc);
+
+  doc.setDrawColor(...CINZAFUNDO);doc.setLineWidth(0.3);
+  doc.line(ML,285,PW-ML,285);
+  doc.setTextColor(...VERDE);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+  doc.text('HomeFix Serviços e Manutenção  |  (47) 99222-6125  |  www.homefix.com  |  Balneário Camboriú - SC',ML,289);
+
+  doc.save('LA '+(c.numimov||'').toUpperCase()+'.pdf');
+  toast('PDF do Laudo de Visita gerado!');
+}
+
+function gerarPDFLaudoPos(d){
+  const jsPDFlib=(window.jspdf||{}).jsPDF;
+  if(!jsPDFlib){toast('Carregando biblioteca de PDF, tente novamente em 2s...');return;}
+  const doc=new jsPDFlib({unit:'mm',format:'a4'});
+  const PW=210,ML=14,CW=182;
+  const VERDE=[55,61,49],TERRA=[146,67,16],MARROM=[164,116,82],CINZA=[107,104,96],G2=[234,231,225],CINZAFUNDO=[246,244,240],BRANCO=[255,255,255];
+  const s=d.snapshot||{};
+  const isRSC=s.tipo==='RSC';
+  let y=0;
+
+  // Header (igual ao orçamento, mas selo em MARROM CLARO para diferenciar)
+  doc.setFillColor(...VERDE);doc.rect(0,0,PW,30,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text('HomeFix',ML,13);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(200,210,195);
+  doc.text('SERVIÇOS E MANUTENÇÃO',ML,18.5);
+  doc.setTextColor(150,165,140);
+  doc.text('CNPJ 57.017.878/0001-57  |  (47) 99222-6125  |  www.homefix.com',ML,24);
+  doc.setFillColor(...MARROM);doc.rect(PW-62,5,48,20,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+  doc.text(isRSC?'LAUDO PÓS-SERVIÇO RSC':'LAUDO PÓS-SERVIÇO (RPS)',PW-38,12,{align:'center'});
+  doc.setFontSize(7);doc.text((s.ticket||''),PW-38,18,{align:'center'});
+
+  // helper: section header bar em marrom claro
+  function sectionHeader(title){
+    if(y>270){doc.addPage();y=15;}
+    doc.setFillColor(...MARROM);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+    doc.text('  '+title,ML+1,y+5);
+    y+=10;
+  }
+  // helper: bloco de texto com fundo claro e respiro
+  function textBlock(text){
+    doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    const lines=doc.splitTextToSize(text||'—',CW-8);
+    const h=lines.length*5.2+6;
+    if(y+h>278){doc.addPage();y=15;}
+    doc.setFillColor(...CINZAFUNDO);doc.rect(ML,y,CW,h,'F');
+    doc.setTextColor(...CINZA);
+    doc.text(lines,ML+4,y+6);
+    y+=h+5;
+  }
+
+  y=38;
+  // DADOS DO IMÓVEL
+  sectionHeader('DADOS DO IMÓVEL');
+  doc.setTextColor(...CINZA);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  const linhas1=[
+    ['Nº Imóvel/Contrato:',s.numimov||'—','Prédio/Referência:',s.predio||'—'],
+    ['Endereço:',s.end||'—','',''],
+    ['Locatário:',s.nome||'—','Contato:',s.tel||'—'],
+    ['Imobiliária:',s.imob||'—','Responsável:',s.resp||'—'],
+    ['Tipo:',s.tipo||'—','Data Execução:',d.data||'—'],
+    ['Prestador:',d.prest||'—','','']
+  ];
+  linhas1.forEach((l,i)=>{
+    const wrapped1=doc.splitTextToSize(l[1],75);
+    const rowH=Math.max(7,wrapped1.length*5+2);
+    doc.setFillColor(...(i%2===0?CINZAFUNDO:BRANCO));doc.rect(ML,y-4.5,CW,rowH,'F');
+    doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.text(l[0],ML+3,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);doc.text(wrapped1,ML+38,y);
+    if(l[2]){doc.setFont('helvetica','bold');doc.setTextColor(...VERDE);doc.text(l[2],ML+105,y);doc.setFont('helvetica','normal');doc.setTextColor(...CINZA);doc.text(doc.splitTextToSize(l[3],50),ML+140,y);}
+    y+=rowH;
+  });
+  y+=5;
+
+  // Problema identificado (apenas MNT)
+  if(!isRSC){
+    sectionHeader('PROBLEMA IDENTIFICADO');
+    textBlock(d.problema);
+  }
+
+  // Solução aplicada / Serviços executados
+  sectionHeader(isRSC?'SERVIÇOS EXECUTADOS':'SOLUÇÃO APLICADA');
+  textBlock(d.serv);
+
+  // Observações
+  if(d.obs){
+    sectionHeader('OBSERVAÇÕES / GARANTIA');
+    textBlock(d.obs);
+  }
+
+  function addFotoSection(title,fotos){
+    if(y>250){doc.addPage();y=15;}
+    sectionHeader(title);
+    if(!fotos||!fotos.length){
+      doc.setTextColor(...CINZA);doc.setFont('helvetica','italic');doc.setFontSize(9);
+      doc.text('Nenhuma foto registrada.',ML+2,y+2);y+=10;return;
+    }
+    const w=55,h=42,gap=6;let x=ML;
+    fotos.forEach((f,i)=>{
+      if(x+w>ML+CW){x=ML;y+=h+gap;}
+      if(y+h>280){doc.addPage();y=15;x=ML;}
+      try{doc.addImage(f,'JPEG',x,y,w,h);}catch(e){}
+      doc.setDrawColor(...G2);doc.rect(x,y,w,h);
+      x+=w+gap;
+    });
+    y+=h+10;
+  }
+  const hasAntes=!isRSC&&d.fotosAntes&&d.fotosAntes.length;
+  if(hasAntes)addFotoSection('FOTOS — ANTES',d.fotosAntes);
+  addFotoSection(hasAntes?'FOTOS — DEPOIS':'FOTOS',d.fotosDepois);
+
+  // Checklist final
+  const checklistH=10+(d.check||[]).length*7;
+  if(y+checklistH>290){doc.addPage();y=15;}
+  sectionHeader('CHECKLIST FINAL');
+  y+=2;
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+  (d.check||[]).forEach(it=>{
+    if(y>278){doc.addPage();y=15;}
+    doc.setDrawColor(...CINZA);
+    if(it.done){doc.setFillColor(...VERDE);doc.rect(ML+2,y-3.7,4.2,4.2,'F');doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.text('X',ML+3,y-0.7);doc.setFontSize(9.5);}
+    else{doc.rect(ML+2,y-3.7,4.2,4.2);}
+    doc.setTextColor(...CINZA);
+    doc.text(it.label,ML+10,y);
+    y+=7;
+  });
+  y+=4;
+
+  // Rodapé
+  doc.setDrawColor(...G2); doc.setLineWidth(0.3);
+  doc.line(ML,285,PW-ML,285);
+  doc.setTextColor(...VERDE); doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+  doc.text('HomeFix Serviços e Manutenção  |  (47) 99222-6125  |  www.homefix.com  |  Balneário Camboriú - SC',ML,289);
+
+  doc.save('RPS '+(s.numimov||'').toUpperCase()+'.pdf');
+  toast('PDF do Laudo Pós-Serviço gerado!');
+}
+function rFotoGrid(c){
+  if(!c.fotosAntes)c.fotosAntes=c.fotos||[];
+  if(!c.fotosDepois)c.fotosDepois=[];
+  const ga=gi('foto-grid-antes'),gd=gi('foto-grid-depois');
+  if(ga)ga.innerHTML=(c.fotosAntes||[]).map((f,i)=>`<div class="foto-item"><img src="${f}"/><button class="foto-del" onclick="delFoto('antes',${i})">×</button></div>`).join('');
+  if(gd)gd.innerHTML=(c.fotosDepois||[]).map((f,i)=>`<div class="foto-item"><img src="${f}"/><button class="foto-del" onclick="delFoto('depois',${i})">×</button></div>`).join('');
+  // RSC: só uma aba de fotos (esconde "antes" e renomeia "depois" para "Fotos")
+  const wrapAntes=gi('fotos-antes-wrap');
+  if(c.tipo==='RSC'){
+    if(wrapAntes)wrapAntes.style.display='none';
+    if(gi('fotos-depois-label'))gi('fotos-depois-label').textContent='📷 Fotos';
+    if(gi('fotos-depois-title'))gi('fotos-depois-title').textContent='Clique ou arraste fotos';
+  } else {
+    if(wrapAntes)wrapAntes.style.display='';
+    if(gi('fotos-depois-label'))gi('fotos-depois-label').textContent='✅ Fotos de Depois';
+    if(gi('fotos-depois-title'))gi('fotos-depois-title').textContent='Clique ou arraste fotos de DEPOIS';
+  }
+}
+function handleFotoDrop(e,grupo){
+  e.preventDefault();e.currentTarget.classList.remove('drag');
+  addFotos(e.dataTransfer.files,grupo);
+}
+function handleFotoInput(e,grupo){addFotos(e.target.files,grupo);}
+function addFotos(files,grupo){
+  const c=getCard(detId);if(!c)return;
+  if(!c.fotosAntes)c.fotosAntes=c.fotos||[];
+  if(!c.fotosDepois)c.fotosDepois=[];
+  const arr=grupo==='depois'?c.fotosDepois:c.fotosAntes;
+  Array.from(files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{arr.push(ev.target.result);rFotoGrid(c);rKanban();toast('Foto adicionada em "'+(grupo==='depois'?'Depois':'Antes')+'"!');};
+    r.readAsDataURL(f);
+  });
+}
+function delFoto(grupo,idx){
+  const c=getCard(detId);if(!c)return;
+  const arr=grupo==='depois'?c.fotosDepois:c.fotosAntes;
+  arr.splice(idx,1);rFotoGrid(c);rKanban();toast('Foto removida!');
+}
+
+// ── ETIQUETAS ──
+function abrirEtqs(){
+  const c=getCard(detId);if(!c)return;
+  selEtqCard=[...c.etqs];
+  rEtqModalList();
+  rSwatches();
+  openM('m-etq');
+}
+function rEtqModalList(){
+  gi('etq-card-list').innerHTML=etqGlobal.map(e=>`
+    <div class="etq-custom-item">
+      <div class="etq-check ${selEtqCard.includes(e.id)?'on':''}" onclick="tgEtqModal('${e.id}',this)">${selEtqCard.includes(e.id)?'✓':''}</div>
+      <div class="etq-preview" style="background:${e.cor}"></div>
+      <span style="font-size:12px;font-weight:600;flex:1">${e.nome}</span>
+      <button class="btn bg bxs" onclick="delEtq('${e.id}')" style="color:var(--red)">🗑</button>
+    </div>`).join('');
+}
+function tgEtqModal(id,el){
+  if(selEtqCard.includes(id))selEtqCard=selEtqCard.filter(x=>x!==id);else selEtqCard.push(id);
+  el.classList.toggle('on');el.textContent=el.classList.contains('on')?'✓':'';
+}
+function rSwatches(){
+  gi('etq-swatches').innerHTML=CORES_SWATCH.map(c=>`<div class="swatch ${etqCor===c?'on':''}" style="background:${c}" onclick="selSwatch('${c}',this)"></div>`).join('');
+  gi('etq-cor-preview').style.background=etqCor;
+}
+function selSwatch(c,el){etqCor=c;document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('on'));el.classList.add('on');gi('etq-cor-preview').style.background=c;}
+function criarEtq(){
+  const nome=gv('etq-new-nome');if(!nome){alert('Informe o nome');return;}
+  etqGlobal.push({id:'e'+(++etqCnt),nome,cor:etqCor});
+  sv('etq-new-nome','');rEtqModalList();rEtqNaOS();toast('Etiqueta "'+nome+'" criada!');
+}
+function delEtq(id){etqGlobal=etqGlobal.filter(e=>e.id!==id);cols.forEach(c=>c.cards.forEach(k=>{k.etqs=k.etqs.filter(x=>x!==id);}));selEtqCard=selEtqCard.filter(x=>x!==id);rEtqModalList();}
+function salvarEtqs(){
+  const c=getCard(detId);if(c)c.etqs=[...selEtqCard];
+  closeM('m-etq');rDash();rKanban();toast('Etiquetas salvas!');verCard(detId);
+}
+function rEtqNaOS(){
+  const el=gi('etq-new');if(!el)return;
+  el.innerHTML=etqGlobal.map(e=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--g2);">
+    <div class="etq-check ${selEtqs.includes(e.id)?'on':''}" onclick="tgEtqNew('${e.id}',this)">${selEtqs.includes(e.id)?'✓':''}</div>
+    <div style="width:18px;height:18px;border-radius:5px;background:${e.cor};flex-shrink:0"></div>
+    <span style="font-size:12px;font-weight:600">${e.nome}</span>
+  </div>`).join('');
+}
+function tgEtqNew(id,el){if(selEtqs.includes(id))selEtqs=selEtqs.filter(x=>x!==id);else selEtqs.push(id);el.classList.toggle('on');el.textContent=el.classList.contains('on')?'✓':'';}
+
+// ── NOVA OS ──
+function setOSTipo(t){
+  osTipo=t;
+  gi('ot-mnt').style.cssText=t==='MNT'?'color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8;':'';
+  gi('ot-rsc').style.cssText=t==='RSC'?'color:#7c3aed;background:#f3e8ff;border-color:#7c3aed;':'';
+  gi('lbl-inq').textContent=t==='MNT'?'Inquilino':'Cliente / Locatário';
+}
+function setUrg(el){
+  gi('m-os').querySelectorAll('.urg-row .uopt').forEach(x=>{x.classList.remove('on');x.style.background='';x.style.borderColor='';});
+  el.classList.add('on');selUrg=el.dataset.u;
+  const styles={urgente:'background:#fee2e2;border-color:#b91c1c',alta:'background:#fee2e2;border-color:#b91c1c',media:'background:#fef3cd;border-color:#92400e',baixa:'background:#d1fae5;border-color:#065f46',normal:'background:var(--g2);border-color:var(--g4)'};
+  el.style.cssText=(styles[selUrg]||'');
+}
+function openNewCard(colId){
+  selEtqs=[];selUrg='alta';osTipo='MNT';
+  ['os-numimov','os-predio','os-end','os-nome','os-tel','os-imob','os-resp','os-ticket','os-oque'].forEach(i=>sv(i,''));
+  setOSTipo('MNT');
+  gi('m-os').querySelectorAll('.urg-row .uopt').forEach(x=>{x.classList.remove('on');x.style.cssText='';});
+  const ab=gi('m-os').querySelector('[data-u="alta"]');if(ab){ab.classList.add('on');ab.style.cssText='background:#fee2e2;border-color:#b91c1c';}
+  if(colId&&gi('os-col'))gi('os-col').value=colId;
+  rEtqNaOS();openM('m-os');
+}
+function salvarOS(){
+  const iv=gv('os-numimov')||gv('os-predio');if(!iv){alert('Informe o Nº do imóvel ou prédio');return;}
+  const colId=gv('os-col');const col=cols.find(c=>c.id===colId)||cols[0];
+  const id='k'+(++cardCnt);
+  const hoje=new Date().toLocaleDateString('pt-BR');
+  const agora=new Date();
+  const criadoEm=agora.toLocaleDateString('pt-BR')+' '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  col.cards.unshift({id,tipo:osTipo,ticket:gv('os-ticket')||(osTipo+' '+gv('os-numimov')),numimov:gv('os-numimov'),predio:gv('os-predio'),end:gv('os-end'),nome:gv('os-nome')||'—',tel:gv('os-tel'),imob:gv('os-imob'),resp:gv('os-resp'),oque:gv('os-oque'),urg:selUrg,etqs:[...selEtqs],fotos:[],fotosAntes:[],fotosDepois:[],coments:[],docs:[],data:hoje,criadoEm});
+  closeM('m-os');toast('OS criada em: '+col.name);rDash();rKanban();
+}
+
+// ── COLUNAS ──
+function addCol(){const n=prompt('Nome da nova coluna:');if(!n)return;cols.push({id:'col'+(++colCnt),name:n.toUpperCase(),cards:[]});rKanban();toast('Coluna criada!');}
+function renameCol(id,n){const c=cols.find(x=>x.id===id);if(c&&n.trim())c.name=n.trim().toUpperCase();rKanban();}
+function delCol(id){
+  const c=cols.find(x=>x.id===id);if(!c)return;
+  if(c.cards.length>0){toast('Remova os cartões antes de excluir.');return;}
+  if(cols.length<=1){toast('Mínimo de 1 coluna.');return;}
+  if(confirm('Excluir coluna "'+c.name+'"?')){cols=cols.filter(x=>x.id!==id);rKanban();toast('Coluna removida!');}
+}
+
+// ── TABS ──
+function swTab(el,tid){
+  el.closest('.mo').querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.closest('.mo').querySelectorAll('.tabc').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');gi(tid).classList.add('on');
+}
+
+// ── AUTOCOMPLETE ENDEREÇO (simulado sem chave de API) ──
+// Região litorânea de SC
+const CIDADES_REGIAO=['Balneário Camboriú - SC','Itapema - SC','Itajaí - SC','Porto Belo - SC','Camboriú - SC','Bombinhas - SC','Navegantes - SC','Penha - SC'];
+const RUAS_REGIAO=['Rua 1900','Rua 1910','Rua 1500','Av. Atlântica','Av. Brasil','Av. Central','Av. Marginal','Rua das Flores','Rua das Acácias','Rua Goiás','Rua Minas Gerais','Rua São Paulo','Rua 500','Rua 600','Rua 700','Rua 2700','Av. Osvaldo Reis','Rua Antônio Heil','Rua 7 de Setembro','Av. José Sávio Pscheidt','Rua Joinville'];
+let acTimer={};
+function acSearch(val,listId){
+  clearTimeout(acTimer[listId]);
+  const el=gi(listId);if(!el)return;
+  if(val.length<2){el.classList.remove('on');return;}
+  acTimer[listId]=setTimeout(()=>{
+    const q=val.toLowerCase();
+    let sugs=[];
+    const cidadeMatch=CIDADES_REGIAO.find(c=>q.includes(c.split(' -')[0].toLowerCase()));
+    if(cidadeMatch){
+      sugs=RUAS_REGIAO.slice(0,5).map(r=>r+', '+cidadeMatch);
+    } else {
+      const ruaMatches=RUAS_REGIAO.filter(r=>r.toLowerCase().includes(q)||q.includes(r.toLowerCase().slice(0,4)));
+      const cidadeMatches=CIDADES_REGIAO.filter(c=>c.toLowerCase().includes(q));
+      if(ruaMatches.length){
+        ruaMatches.slice(0,3).forEach(r=>CIDADES_REGIAO.slice(0,2).forEach(c=>sugs.push(r+', '+c)));
+      }
+      cidadeMatches.forEach(c=>sugs.push(val+', '+c));
+      if(!sugs.length)CIDADES_REGIAO.slice(0,5).forEach(c=>sugs.push(val+', '+c));
+    }
+    sugs=[...new Set(sugs)].slice(0,6);
+    el.innerHTML=sugs.map(s=>`<div class="ac-item" onclick="selAC('${listId}','${s}')">${s}</div>`).join('');
+    el.classList.toggle('on',sugs.length>0);
+  },250);
+}
+function selAC(listId,val){
+  const inputId=listId==='ac-os'?'os-end':'oc-imovel';
+  sv(inputId,val);gi(listId).classList.remove('on');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap'))document.querySelectorAll('.ac-list').forEach(l=>l.classList.remove('on'));
+});
+
+// ── ORÇAMENTOS ──
+function setOrcTipo(t){
+  orcTipo=t;
+  gi('oc-mnt').style.cssText=t==='MNT'?'color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8;':'';
+  gi('oc-rsc').style.cssText=t==='RSC'?'color:#7c3aed;background:#f3e8ff;border-color:#7c3aed;':'';
+  gi('lbl-oc-cli').textContent=t==='MNT'?'Inquilino':'Cliente / Locatário';
+}
+function abrirOrc(fromCard){
+  if(!fromCard)detId=null;
+  orcEditId=null;oiItems=[{id:1,desc:'',mdo:'',mat:''},{id:2,desc:'',mdo:'',mat:''}];
+  gi('orc-title').textContent='Novo Orçamento';gi('orc-sub').textContent='';
+  sv('oc-num','ORC-'+String(orcCnt).padStart(3,'0'));
+  sv('oc-data',new Date().toISOString().split('T')[0]);
+  ['oc-imob','oc-cuid','oc-imovel','oc-cli','oc-cont','oc-diag','oc-prazo','oc-obs'].forEach(i=>sv(i,''));
+  sv('oc-gar','90 dias');sv('oc-pgto','A negociar');
+  setOrcTipo('MNT');rOI();openM('m-orc');
+}
+function rOrcs(){
+  const q=(gi('orc-search-q')?.value||'').toLowerCase().trim();
+  const tipoCampo=gi('orc-search-tipo-campo')?.value||'todos';
+  const statusFilt=gi('orc-filter-status')?.value||'';
+  let lista=orcs;
+  if(statusFilt)lista=lista.filter(o=>o.status===statusFilt);
+  else lista=lista.filter(o=>o.status!=='arquivado');
+  if(q){
+    lista=lista.filter(o=>{
+      if(tipoCampo==='imob')return(o.imob||'').toLowerCase().includes(q);
+      if(tipoCampo==='cliente')return(o.cli||'').toLowerCase().includes(q);
+      if(tipoCampo==='imovel')return((o.imovel||'')+(o.id||'')).toLowerCase().includes(q);
+      if(tipoCampo==='tipo')return o.tipo.toLowerCase().includes(q);
+      return((o.imob||'')+(o.cli||'')+(o.imovel||'')+(o.tipo||'')+(o.id||'')).toLowerCase().includes(q);
+    });
+  }
+  gi('orc-tbody').innerHTML=lista.map(o=>`<tr style="opacity:${o.status==='arquivado'?'.45':'1'}"><td><b style="color:#924310">${o.id}</b></td><td><span class="badge ${o.tipo==='MNT'?'b-mnt':'b-rsc'}">${o.tipo}</span></td><td style="font-size:10px">${o.imovel}</td><td style="font-size:10px">${o.cli}</td><td style="font-weight:700;color:var(--g)">${fmtR(o.valor)}</td><td><span class="badge ${o.status==='aprovado'?'b-ap':o.status==='arquivado'?'b-normal':'b-an'}">${o.status==='aprovado'?'Aprovado':o.status==='arquivado'?'Arquivado':'Aguardando'}</span></td><td style="font-size:10px;color:var(--g4)">${o.data}</td><td><div style="display:flex;gap:4px">${o.status==='aguardando'?`<button class="btn bsu bxs" onclick="aprOrc('${o.id}')">✅</button>`:''}<button class="btn bg bxs" onclick="arquivarOrc('${o.id}')" title="${o.status==='arquivado'?'Desarquivar':'Arquivar'}">${o.status==='arquivado'?'📤':'📁'}</button><button class="btn bg bxs" onclick="delOrc('${o.id}')" title="Excluir" style="color:var(--red)">🗑</button></div></td></tr>`).join('');
+}
+function arquivarOrc(id){const o=orcs.find(x=>x.id===id);if(o){o.status=o.status==='arquivado'?'aguardando':'arquivado';rOrcs();rDash();toast(o.status==='arquivado'?id+' arquivado.':id+' restaurado.');}}
+function delOrc(id){if(confirm('Excluir orçamento '+id+'? Esta ação não pode ser desfeita.')){orcs=orcs.filter(x=>x.id!==id);rOrcs();rDash();toast('Orçamento excluído.');}}
+function aprOrc(id){const o=orcs.find(x=>x.id===id);if(o){o.status='aprovado';toast(id+' aprovado!');rOrcs();rDash();}}
+function addOI(){oiItems.push({id:Date.now(),desc:'',mdo:'',mat:''});rOI();}
+function remOI(id){oiItems=oiItems.filter(x=>x.id!==id);rOI();}
+function updOI(id,k,v){const it=oiItems.find(x=>x.id===id);if(it)it[k]=v;calcOI();}
+function calcOI(){
+  const t=oiItems.reduce((s,i)=>s+(parseFloat(i.mdo)||0)+(parseFloat(i.mat)||0),0);
+  if(gi('oi-total'))gi('oi-total').textContent=fmtR(t);
+  gi('oi-list')?.querySelectorAll('.oi-tot').forEach((el,i)=>{if(oiItems[i])el.textContent=fmtR((parseFloat(oiItems[i].mdo)||0)+(parseFloat(oiItems[i].mat)||0));});
+  return t;
+}
+function rOI(){
+  if(!gi('oi-list'))return;
+  gi('oi-list').innerHTML=oiItems.map((it,i)=>`<div class="oi-row">
+    <div class="oi-num">${String(i+1).padStart(2,'0')}</div>
+    <input class="oi-in" style="width:100%" value="${it.desc||''}" placeholder="Descrição" oninput="updOI(${it.id},'desc',this.value)"/>
+    <input class="oi-in" style="text-align:right" value="${it.mdo||''}" type="number" placeholder="0" oninput="updOI(${it.id},'mdo',this.value)"/>
+    <input class="oi-in" style="text-align:right" value="${it.mat||''}" type="number" placeholder="0" oninput="updOI(${it.id},'mat',this.value)"/>
+    <div class="oi-tot">${fmtR((parseFloat(it.mdo)||0)+(parseFloat(it.mat)||0))}</div>
+    <button style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:14px;opacity:.5" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5" onclick="remOI(${it.id})">×</button>
+  </div>`).join('');
+  calcOI();
+}
+function salvarOrc(){
+  if(!orcTipo){toast('Selecione MNT ou RSC');return;}
+  const total=calcOI(),hoje=new Date().toLocaleDateString('pt-BR');
+  const c=detId?getCard(detId):null;
+  if(c&&!c.fotosAntes)c.fotosAntes=c.fotos||[];
+  if(c&&!c.fotosDepois)c.fotosDepois=[];
+  const orcData={tipo:'orc',label:'Orçamento',dt:hoje,val:total,num:gv('oc-num'),subtipo:orcTipo,imob:gv('oc-imob'),cuid:gv('oc-cuid'),imovel:gv('oc-imovel'),cli:gv('oc-cli'),cont:gv('oc-cont'),diag:gv('oc-diag'),itens:oiItems.map(i=>({desc:i.desc,mdo:i.mdo,mat:i.mat})),prazo:gv('oc-prazo'),gar:gv('oc-gar'),pgto:gv('oc-pgto'),obs:gv('oc-obs'),fotosAntes:c?[...c.fotosAntes]:[]};
+  if(detId&&c){
+    if(orcEditId!=null&&c.docs[orcEditId]){
+      c.docs[orcEditId]=orcData;
+    } else {
+      c.docs.push(orcData);
+    }
+  }
+  if(orcEditId==null){
+    const id='ORC-'+String(orcCnt++).padStart(3,'0');
+    orcs.unshift({id,tipo:orcTipo,imob:gv('oc-imob'),imovel:gv('oc-imovel')||'—',cli:gv('oc-cli')||'—',valor:total,status:'aguardando',data:hoje});
+  }
+  const wasEdit=orcEditId!=null;
+  orcEditId=null;
+  closeM('m-orc');toast(wasEdit?'Orçamento atualizado!':'Orçamento salvo!');rOrcs();rDash();
+  if(detId&&c){const idx=wasEdit?(c.docs.length-1>=0?c.docs.indexOf(orcData):0):c.docs.length-1;rDocs(c);verDoc(c.id,c.docs.indexOf(orcData));}
+}
+
+// ── EDITAR ORÇAMENTO ──
+function editarOrc(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  const d=c.docs[idx];if(!d||d.tipo!=='orc')return;
+  document.getElementById('m-doc-view')?.remove();
+  orcEditId=idx;detId=cid;
+  oiItems=(d.itens||[]).map((it,i)=>({id:i+1,desc:it.desc,mdo:it.mdo,mat:it.mat}));
+  if(!oiItems.length)oiItems=[{id:1,desc:'',mdo:'',mat:''}];
+  setOrcTipo(d.subtipo||'MNT');
+  sv('oc-num',d.num||'');sv('oc-data',new Date().toISOString().split('T')[0]);
+  sv('oc-imob',d.imob||'');sv('oc-cuid',d.cuid||'');sv('oc-imovel',d.imovel||'');
+  sv('oc-cli',d.cli||'');sv('oc-cont',d.cont||'');sv('oc-diag',d.diag||'');
+  sv('oc-prazo',d.prazo||'');sv('oc-gar',d.gar||'90 dias');sv('oc-pgto',d.pgto||'A negociar');sv('oc-obs',d.obs||'');
+  gi('orc-title').textContent='Editar Orçamento';
+  gi('orc-sub').textContent=d.num||'';
+  rOI();openM('m-orc');
+}
+
+// ── EQUIPE ──
+function rEquipe(){
+  const sm={ativo:'#d1fae5',ocupado:'#fef3cd',offline:'var(--g2)'};
+  const sc={ativo:'#065f46',ocupado:'#92400e',offline:'var(--g6)'};
+  const st={ativo:'Disponível',ocupado:'Em campo',offline:'Offline'};
+  gi('eq-grid').innerHTML=techs.map(t=>`<div style="background:#fff;border-radius:10px;padding:16px;border:1px solid var(--g2)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="width:40px;height:40px;border-radius:50%;background:${t.av};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${ini(t.nome)}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:800">${t.nome}</div><div style="font-size:10px;color:var(--g6)">${t.esp}</div></div>
+      <span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;background:${sm[t.status]};color:${sc[t.status]}">${st[t.status]}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px">
+      <div style="text-align:center;background:var(--g1);border-radius:8px;padding:7px"><div style="font-size:16px;font-weight:900">${t.conc}</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase">Concluídas</div></div>
+      <div style="text-align:center;background:var(--g1);border-radius:8px;padding:7px"><div style="font-size:16px;font-weight:900">★4.8</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase">Avaliação</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--g6);padding-top:9px;border-top:1px solid var(--g2)">📱 ${t.tel}</div>
+  </div>`).join('');
+}
+function salvarTech(){
+  const n=gv('te-nome');if(!n){alert('Informe o nome');return;}
+  const CORES=['#924310','#373d31','#724223','#1a6fa8','#1e7a45','#8e44ad'];
+  techs.push({id:techs.length+1,nome:n,esp:gv('te-esp'),tel:gv('te-tel')||'—',status:'ativo',conc:0,av:CORES[techs.length%CORES.length]});
+  closeM('m-tech');['te-nome','te-tel'].forEach(i=>sv(i,''));toast(n+' adicionado!');rEquipe();
+}
+
+// ── IMPORTAR TRELLO ──
+function handleDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');processTrelloFile(e.dataTransfer.files[0]);}
+function importTrello(e){processTrelloFile(e.target.files[0]);}
+function processTrelloFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      const lists={};(data.lists||[]).forEach(l=>lists[l.id]=l.name.toUpperCase());
+      (data.lists||[]).forEach(l=>{
+        const name=l.name.toUpperCase();
+        if(!cols.find(c=>c.name===name))cols.push({id:'tl_'+l.id,name,cards:[]});
+      });
+      let imported=0;
+      (data.cards||[]).forEach(card=>{
+        if(card.closed)return;
+        const col=cols.find(c=>c.name===lists[card.idList])||cols[0];
+        const id='k'+(++cardCnt);
+        const tipo=card.name?.toUpperCase().includes('RSC')?'RSC':'MNT';
+        const cms=(card.actions||[]).filter(a=>a.type==='commentCard').map(a=>({a:a.memberCreator?.fullName||'Trello',dt:new Date(a.date).toLocaleDateString('pt-BR'),t:a.data?.text||''}));
+        col.cards.push({id,tipo,ticket:card.name||'',numimov:card.name||'',predio:card.name||'',end:'',nome:'',tel:'',imob:'Importado do Trello',resp:'',oque:card.desc||'',urg:'normal',etqs:[],fotos:[],coments:cms,docs:[],data:new Date(card.dateLastActivity).toLocaleDateString('pt-BR')});
+        imported++;
+      });
+      gi('import-result').innerHTML=`<div style="background:#d1fae5;border-radius:8px;padding:13px;border-left:3px solid #1e7a45;margin-top:10px"><div style="font-size:13px;font-weight:800;color:#065f46;margin-bottom:4px">✅ ${imported} cartões importados!</div><div style="font-size:12px;color:#065f46">Acesse Serviços para visualizar no Kanban.</div></div>`;
+      rDash();rKanban();toast(imported+' cartões importados do Trello!');
+    }catch(err){
+      gi('import-result').innerHTML=`<div style="background:#fee2e2;border-radius:8px;padding:13px;border-left:3px solid #c0392b;margin-top:10px"><div style="font-size:13px;font-weight:800;color:#b91c1c">❌ Erro ao importar — verifique se é um JSON do Trello.</div></div>`;
+    }
+  };reader.readAsText(file);
+}
+
+// ── INIT ──
+rDash();
+</script>
+</body>
+</html>
