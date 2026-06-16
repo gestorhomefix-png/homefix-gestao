@@ -331,6 +331,32 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 </head>
 <body>
 
+
+<!-- TELA DE LOGIN -->
+<div id="login-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:#373d31;align-items:center;justify-content:center;flex-direction:column;padding:24px;">
+  <div style="width:100%;max-width:380px;">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:32px;font-weight:900;color:#fff;letter-spacing:-1px;">Homefix</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Gestão de Serviços</div>
+    </div>
+    <!-- Card -->
+    <div style="background:#fff;border-radius:16px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="font-size:16px;font-weight:800;color:#373d31;margin-bottom:4px;">Entrar</div>
+      <div style="font-size:12px;color:#6b6860;margin-bottom:22px;">Acesso restrito HomeFix</div>
+      <div id="login-err" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 12px;font-size:12px;color:#dc2626;margin-bottom:16px;"></div>
+      <label style="font-size:10px;font-weight:800;color:#6b6860;letter-spacing:.5px;text-transform:uppercase;">E-mail</label>
+      <input id="login-email" type="email" placeholder="seu@email.com" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin:6px 0 16px;outline:none;font-family:inherit;" onfocus="this.style.borderColor='#924310'" onblur="this.style.borderColor='#e5e7eb'"/>
+      <label style="font-size:10px;font-weight:800;color:#6b6860;letter-spacing:.5px;text-transform:uppercase;">Senha</label>
+      <div style="position:relative;margin:6px 0 22px;">
+        <input id="login-senha" type="password" placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;" onfocus="this.style.borderColor='#924310'" onblur="this.style.borderColor='#e5e7eb'" onkeydown="if(event.key==='Enter')fazerLogin()"/>
+      </div>
+      <button onclick="fazerLogin()" id="login-btn" style="width:100%;padding:13px;background:#924310;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;">Entrar</button>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:10px;color:rgba(255,255,255,.3);">HomeFix © 2026 — Acesso autorizado apenas para colaboradores</div>
+  </div>
+</div>
+
 <aside class="sb">
   <div class="sb-logo">
     <div class="sb-logo-row">
@@ -2239,6 +2265,66 @@ setInterval(salvarNuvem, 30000);
   const carregou = await carregarNuvem();
   rDash();
   if(carregou) { rKanban(); rOrcs(); rEquipe(); }
+})();
+
+
+// ── LOGIN ──
+const SUPA_AUTH = 'https://ysnzdgnwnecukigklwlz.supabase.co/auth/v1';
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+
+  if(!email || !senha) { mostrarErro('Preencha e-mail e senha.'); return; }
+
+  btn.textContent = 'Entrando...';
+  btn.style.opacity = '.7';
+  err.style.display = 'none';
+
+  try {
+    const r = await fetch(SUPA_AUTH + '/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: senha })
+    });
+    const d = await r.json();
+    if(d.access_token) {
+      sessionStorage.setItem('hf_token', d.access_token);
+      sessionStorage.setItem('hf_user', d.user?.email || email);
+      document.getElementById('login-screen').style.display = 'none';
+      document.querySelector('.sb').style.visibility = 'visible';
+      document.querySelector('.main').style.visibility = 'visible';
+      // Update user name in sidebar
+      const un = document.querySelector('.un');
+      if(un) un.textContent = d.user?.email?.split('@')[0] || 'Usuário';
+    } else {
+      mostrarErro(d.error_description || 'E-mail ou senha incorretos.');
+    }
+  } catch(e) {
+    mostrarErro('Erro de conexão. Tente novamente.');
+  }
+  btn.textContent = 'Entrar';
+  btn.style.opacity = '1';
+}
+
+function mostrarErro(msg) {
+  const err = document.getElementById('login-err');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+// Verificar se já tem sessão ativa
+(function verificarSessao() {
+  const token = sessionStorage.getItem('hf_token');
+  if(token) {
+    document.getElementById('login-screen').style.display = 'none';
+  } else {
+    // Esconde app até logar
+    document.querySelector('.sb') && (document.querySelector('.sb').style.visibility = 'hidden');
+    document.querySelector('.main') && (document.querySelector('.main').style.visibility = 'hidden');
+  }
 })();
 
 </script>
