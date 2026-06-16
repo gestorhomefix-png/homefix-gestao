@@ -1851,12 +1851,31 @@ function delAnexo(cid,idx){
 function verAnexo(cid,idx){
   const c=getCard(cid);if(!c)return;
   const a=c.anexos[idx];if(!a)return;
-  if(a.tipo&&(a.tipo.startsWith('image/')||a.tipo.includes('pdf'))){
-    window.open(a.dados,'_blank');
-  } else {
+  const isImg=a.tipo&&a.tipo.startsWith('image/');
+  const isPdf=a.tipo&&a.tipo.includes('pdf');
+
+  if(!isImg&&!isPdf){
+    // outros tipos (doc, xls...) não têm visualizador nativo no navegador — baixa direto
     const link=document.createElement('a');
     link.href=a.dados;link.download=a.nome;link.click();
+    return;
   }
+
+  document.getElementById('m-anexo-view')?.remove();
+  const tmp=document.createElement('div');
+  tmp.id='m-anexo-view';
+  tmp.className='ov on';
+  tmp.style.zIndex='350';
+  const conteudo=isImg
+    ? `<img src="${a.dados}" style="max-width:100%;max-height:75vh;display:block;margin:0 auto;border-radius:8px;object-fit:contain"/>`
+    : `<iframe src="${a.dados}" style="width:100%;height:75vh;border:none;border-radius:8px"></iframe>`;
+  tmp.innerHTML=`<div class="mo mo-lg">
+    <div class="moh"><div class="mot">📎 ${a.nome}</div><button class="mox" onclick="document.getElementById('m-anexo-view').remove()">✕</button></div>
+    <div class="mob" style="padding-bottom:16px">${conteudo}</div>
+    <div class="mof"><button class="btn bg bsm" onclick="document.getElementById('m-anexo-view').remove()">Fechar</button><div style="flex:1"></div><a class="btn bp bsm" href="${a.dados}" download="${a.nome}" style="text-decoration:none">⬇️ Baixar</a></div>
+  </div>`;
+  tmp.addEventListener('click',ev=>{if(ev.target===tmp)tmp.remove();});
+  document.body.appendChild(tmp);
 }
 function addFotos(files,grupo){
   const c=getCard(detId);if(!c)return;
