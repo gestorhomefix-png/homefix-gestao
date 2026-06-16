@@ -2283,7 +2283,9 @@ document.querySelectorAll('.ni').forEach(el => el.addEventListener('click', clos
 const SUPA_URL = 'https://ysnzdgnwnecukigklwlz.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzbnpkZ253bmVjdWtpZ2tsd2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNzI4NzcsImV4cCI6MjA5Njk0ODg3N30.MA-3VBYnOkxWC3YlZ2gtWz03gP3NF4OQ7iKSRqZ5Dvk';
 let syncTimer = null;
-let ultimoSalvo = null;
+let ultimoTsConhecido = 0;   // timestamp da última versão que vimos na nuvem
+let salvando = false;        // evita salvamentos simultâneos sobrepostos
+let pendenteResalvar = false;
 
 async function supaGet(chave) {
   try {
@@ -2310,20 +2312,44 @@ async function supaSet(chave, valor) {
 
 function agendarSalvamento() {
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(salvarNuvem, 2000);
+  syncTimer = setTimeout(salvarNuvem, 1500);
 }
 
+// Salva, mas SEMPRE confere a versão mais recente do servidor primeiro.
+// Se alguém salvou algo mais novo enquanto este dispositivo estava com a tela aberta,
+// recarrega aquilo antes de gravar — assim nunca sobrescreve dados de outro dispositivo.
 async function salvarNuvem() {
-  const dados = JSON.stringify({
-    cols, orcs, techs, etqGlobal,
-    orcCnt, cardCnt, etqCnt,
-    _ts: Date.now()
-  });
-  if(dados === ultimoSalvo) return;
-  ultimoSalvo = dados;
-  await supaSet('homefix_dados', dados);
+  if(salvando) { pendenteResalvar = true; return; }
+  salvando = true;
   const ind = gi('sync-ind');
-  if(ind) { ind.textContent = '☁️ Salvo'; ind.style.color = '#1e7a45'; setTimeout(()=>{ if(ind)ind.textContent='☁️ Sync'; ind.style.color='rgba(255,255,255,.4)'; }, 2000); }
+  try {
+    // 1. Busca a versão mais recente do servidor para comparar
+    const raw = await supaGet('homefix_dados');
+    if(raw) {
+      try {
+        const remoto = JSON.parse(raw);
+        if(remoto._ts && remoto._ts > ultimoTsConhecido) {
+          // Alguém (outra aba/dispositivo) salvou depois da nossa última leitura.
+          // Não sobrescreve às cegas: avisa e recarrega para não perder dados de ninguém.
+          if(ind) { ind.textContent = '🔄 Atualizando...'; ind.style.color = 'rgba(255,255,255,.7)'; }
+          await carregarNuvem();
+          toast('Dados atualizados por outro dispositivo — tela recarregada.');
+          salvando = false;
+          if(pendenteResalvar) { pendenteResalvar = false; agendarSalvamento(); }
+          return;
+        }
+      } catch(e) {}
+    }
+    // 2. Seguro para salvar: nossa cópia é a mais recente conhecida
+    const novoTs = Date.now();
+    const dados = JSON.stringify({ cols, orcs, techs, etqGlobal, orcCnt, cardCnt, etqCnt, _ts: novoTs });
+    await supaSet('homefix_dados', dados);
+    ultimoTsConhecido = novoTs;
+    if(ind) { ind.textContent = '☁️ Salvo'; ind.style.color = '#1e7a45'; setTimeout(()=>{ if(ind)ind.textContent='☁️ Sync'; ind.style.color='rgba(255,255,255,.4)'; }, 2000); }
+  } finally {
+    salvando = false;
+    if(pendenteResalvar) { pendenteResalvar = false; agendarSalvamento(); }
+  }
 }
 
 async function carregarNuvem() {
@@ -2340,14 +2366,32 @@ async function carregarNuvem() {
       if(d.orcCnt) orcCnt = d.orcCnt;
       if(d.cardCnt) cardCnt = d.cardCnt;
       if(d.etqCnt) etqCnt = d.etqCnt;
-      ultimoSalvo = JSON.stringify({cols,orcs,techs,etqGlobal,orcCnt,cardCnt,etqCnt,_ts:d._ts});
+      ultimoTsConhecido = d._ts || Date.now();
       if(ind) { ind.textContent = '☁️ Sync'; ind.style.color = 'rgba(255,255,255,.4)'; }
+      rDash(); rKanban(); rOrcs(); rEquipe();
       return true;
     } catch(e) { console.error('Erro ao carregar dados:', e); }
   }
   if(ind) { ind.textContent = '☁️ Novo'; ind.style.color = 'rgba(255,255,255,.4)'; }
   return false;
 }
+
+// Antes de salvar por inatividade (ex: trocar de aba), também verifica atualização
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') {
+    // Ao voltar para a aba, verifica se há versão mais nova antes de continuar editando
+    supaGet('homefix_dados').then(raw => {
+      if(!raw) return;
+      try {
+        const remoto = JSON.parse(raw);
+        if(remoto._ts && remoto._ts > ultimoTsConhecido) {
+          carregarNuvem();
+          toast('Dados atualizados — recarregado com a versão mais recente.');
+        }
+      } catch(e) {}
+    });
+  }
+});
 
 // Patch all write operations to auto-save
 const _origSalvarOS = salvarOS;
@@ -2378,13 +2422,24 @@ const _origSalvarEtqs = salvarEtqs;
 salvarEtqs = function() { _origSalvarEtqs.apply(this, arguments); agendarSalvamento(); };
 
 // Sync a cada 30s em background
-setInterval(salvarNuvem, 30000);
+// A cada 20s, verifica se há versão mais nova na nuvem (outro dispositivo salvou) e recarrega.
+// Não força gravação sem necessidade — assim várias telas abertas nunca se sobrescrevem.
+setInterval(async () => {
+  if(salvando) return;
+  const raw = await supaGet('homefix_dados');
+  if(!raw) return;
+  try {
+    const remoto = JSON.parse(raw);
+    if(remoto._ts && remoto._ts > ultimoTsConhecido) {
+      await carregarNuvem();
+    }
+  } catch(e) {}
+}, 20000);
 
 // Inicializar
 (async function init() {
-  const carregou = await carregarNuvem();
+  await carregarNuvem();
   rDash();
-  if(carregou) { rKanban(); rOrcs(); rEquipe(); }
 })();
 
 
