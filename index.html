@@ -787,6 +787,10 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
       <div class="fr"><div class="fl" style="margin:0"><label class="lb">Data de Execução</label><input class="fi" id="lp-data" type="date"/></div>
       <div class="fl" style="margin:0"><label class="lb">Prestador / Técnico</label><input class="fi" id="lp-prest" placeholder="Nome do prestador"/></div></div>
     </div>
+    <div class="lsect"><div class="lsect-t">Valor Final do Serviço</div>
+      <div class="fr"><div class="fl" style="margin:0"><label class="lb">Valor (R$)</label><input class="fi" id="lp-valor" type="text" placeholder="0,00" oninput="formatarValorLP(this)"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Origem</label><div id="lp-valor-origem" style="font-size:11px;color:var(--g4);padding:9px 0;">—</div></div></div>
+    </div>
     <!-- MNT -->
     <div id="lp-mnt-fields">
       <div class="lsect"><div class="lsect-t">Problema Identificado</div><textarea class="ft" id="lp-problema" rows="2" placeholder="Qual era o problema..."></textarea></div>
@@ -888,6 +892,13 @@ const gi=id=>document.getElementById(id);
 const gv=id=>gi(id)?(gi(id).value||'').trim():'';
 const sv=(id,v)=>{if(gi(id))gi(id).value=v;};
 function fmtR(v){return'R$\u00a0'+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function formatarValorLP(el){
+  let v=el.value.replace(/\D/g,'');
+  if(!v){el.value='';return;}
+  v=(parseInt(v,10)/100).toFixed(2);
+  el.value=v.replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  gi('lp-valor-origem').innerHTML='✏️ Valor editado manualmente';
+}
 function toast(m){const t=gi('toast');t.textContent='✅ '+m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
 function openM(id){gi(id).classList.add('on');}
 function closeM(id){gi(id).classList.remove('on');}
@@ -1280,6 +1291,7 @@ function verDoc(cid,idx){
       ${isRSC?'':`<div class="lsect"><div class="lsect-t">Problema Identificado</div><div style="font-size:12px;line-height:1.6">${d.problema||'—'}</div></div>`}
       <div class="lsect"><div class="lsect-t">${isRSC?'Serviços Executados':'Solução Aplicada'}</div><div style="font-size:12px;line-height:1.6">${d.serv||'—'}</div></div>
       <div class="lsect"><div class="lsect-t">Observações / Garantia</div><div style="font-size:12px;line-height:1.6">${d.obs||'—'}</div></div>
+      ${(d.valorFinal&&d.valorFinal>0)?`<div class="lsect" style="background:var(--g);border-radius:9px;padding:14px;display:flex;align-items:center;justify-content:space-between;"><span style="color:#c8d2c0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Valor Total do Serviço</span><span style="color:#fff;font-size:18px;font-weight:800">${fmtR(d.valorFinal)}</span></div>`:''}
       ${(!isRSC&&d.fotosAntes&&d.fotosAntes.length)?`<div class="lsect"><div class="lsect-t">Fotos — Antes</div>${fotoGrid(d.fotosAntes)}</div>`:''}
       <div class="lsect"><div class="lsect-t">${(!isRSC&&d.fotosAntes&&d.fotosAntes.length)?'Fotos — Depois':'Fotos'}</div>${fotoGrid(d.fotosDepois)}</div>
       <div class="lsect"><div class="lsect-t">Checklist Final</div>${checkHtml}</div>`;
@@ -1343,6 +1355,16 @@ function gerarDoc(tipo){
       <b>Locatário:</b> ${c.nome||'—'} &nbsp;·&nbsp; <b>Contato:</b> ${c.tel||'—'}<br>
       <b>Imobiliária:</b> ${c.imob||'—'} &nbsp;·&nbsp; <b>Responsável:</b> ${c.resp||'—'}<br>
       <b>Ticket:</b> ${c.ticket||'—'} &nbsp;·&nbsp; <b>Tipo:</b> ${c.tipo}`:'';
+    // Busca o orçamento mais recente deste card para preencher o valor automaticamente
+    const orcsDoCard=(c?.docs||[]).filter(d=>d.tipo==='orc');
+    const ultimoOrc=orcsDoCard[orcsDoCard.length-1];
+    if(ultimoOrc&&ultimoOrc.val){
+      sv('lp-valor',Number(ultimoOrc.val).toFixed(2).replace('.',','));
+      gi('lp-valor-origem').innerHTML='💰 Puxado do orçamento '+(ultimoOrc.num||'')+' — pode editar';
+    } else {
+      sv('lp-valor','');
+      gi('lp-valor-origem').innerHTML='Nenhum orçamento encontrado — preencha manualmente';
+    }
     if(c?.tipo==='RSC'){
       gi('lp-title').textContent='Laudo Pós-Serviço — Rescisão (RSC)';
       gi('lp-mnt-fields').style.display='none';
@@ -1367,17 +1389,18 @@ function salvarDoc(tipo,label){
   if(tipo==='lv')extra={data:gv('lv-data'),tec:gv('lv-tec'),prob:gv('lv-prob'),conc:gv('lv-conc')};
   if(tipo==='lp'){
     const checkItems=c.tipo==='RSC'?LP_CHECK_RSC:LP_CHECK_MNT;
+    const valorNum=parseFloat((gv('lp-valor')||'0').replace(/\./g,'').replace(',','.'))||0;
     extra={
       data:gv('lp-data'),prest:gv('lp-prest'),
       problema:gv('lp-problema'),serv:c.tipo==='RSC'?gv('lp-servicos-rsc'):gv('lp-serv'),
-      obs:gv('lp-obs'),
+      obs:gv('lp-obs'),valorFinal:valorNum,
       check:checkItems.map((label,i)=>({label,done:lpGetChecklist(checkItems)[i]})),
       snapshot:{numimov:c.numimov,predio:c.predio,end:c.end,nome:c.nome,tel:c.tel,imob:c.imob,resp:c.resp,ticket:c.ticket,tipo:c.tipo},
       fotosAntes:c.tipo==='RSC'?[]:[...(c.fotosAntes||c.fotos||[])],
       fotosDepois:[...(c.fotosDepois||[])]
     };
   }
-  const doc={tipo,label,dt,val:0,...extra};
+  const doc={tipo,label,dt,val:extra.valorFinal||0,...extra};
   c.docs.push(doc);
   closeM('m-'+tipo);rDocs(c);rDash();toast(label+' salvo no cartão!');
   verDoc(c.id,c.docs.length-1);
@@ -1685,6 +1708,18 @@ function gerarPDFLaudoPos(d){
   if(d.obs){
     sectionHeader('OBSERVAÇÕES / GARANTIA');
     textBlock(d.obs);
+  }
+
+  // Valor Final do Serviço — destaque
+  if(d.valorFinal && d.valorFinal > 0){
+    if(y>265){doc.addPage();y=15;}
+    doc.setFillColor(...VERDE);doc.rect(ML,y,CW,16,'F');
+    doc.setTextColor(200,210,195);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('VALOR TOTAL DO SERVIÇO',ML+5,y+6.5);
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);
+    const valorTxt='R$ '+Number(d.valorFinal).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    doc.text(valorTxt,PW-ML-5,y+11,{align:'right'});
+    y+=22;
   }
 
   function addFotoSection(title,fotos){
