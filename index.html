@@ -2376,6 +2376,60 @@ async function carregarNuvem() {
   return false;
 }
 
+// ── HISTÓRICO / RESTAURAR BACKUP ──
+// A cada salvamento, o banco guarda automaticamente uma cópia (até 50 versões).
+// Para ver ou restaurar uma versão anterior, abra o Console do navegador (F12) e digite:
+//   listarHistorico()           → mostra as últimas versões salvas com data/hora e total de OS
+//   restaurarVersao(ID)         → restaura a versão com aquele ID (use o ID mostrado em listarHistorico)
+async function listarHistorico() {
+  try {
+    const r = await fetch(SUPA_URL + '/rest/v1/hf_historico?select=id,criado_em&order=criado_em.desc&limit=50', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const lista = await r.json();
+    console.table(lista.map(x => ({ id: x.id, data: new Date(x.criado_em).toLocaleString('pt-BR') })));
+    console.log('Use restaurarVersao(ID) para voltar para uma dessas versões.');
+    return lista;
+  } catch(e) { console.error('Erro ao listar histórico:', e); }
+}
+async function verVersao(id) {
+  try {
+    const r = await fetch(SUPA_URL + '/rest/v1/hf_historico?id=eq.' + id + '&select=valor,criado_em', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const d = await r.json();
+    if(!d[0]) { console.log('Versão não encontrada.'); return; }
+    const parsed = JSON.parse(d[0].valor);
+    const totalCards = (parsed.cols||[]).reduce((s,c)=>s+c.cards.length,0);
+    console.log('Data:', new Date(d[0].criado_em).toLocaleString('pt-BR'));
+    console.log('Total de OS nessa versão:', totalCards);
+    console.log('Orçamentos:', (parsed.orcs||[]).length);
+    return parsed;
+  } catch(e) { console.error('Erro:', e); }
+}
+async function restaurarVersao(id) {
+  if(!confirm('Restaurar essa versão vai substituir os dados ATUAIS pelos dados daquela data. Tem certeza?')) return;
+  try {
+    const r = await fetch(SUPA_URL + '/rest/v1/hf_historico?id=eq.' + id + '&select=valor', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const d = await r.json();
+    if(!d[0]) { console.log('Versão não encontrada.'); return; }
+    const parsed = JSON.parse(d[0].valor);
+    if(parsed.cols) cols = parsed.cols;
+    if(parsed.orcs) orcs = parsed.orcs;
+    if(parsed.techs) techs = parsed.techs;
+    if(parsed.etqGlobal) etqGlobal = parsed.etqGlobal;
+    if(parsed.orcCnt) orcCnt = parsed.orcCnt;
+    if(parsed.cardCnt) cardCnt = parsed.cardCnt;
+    if(parsed.etqCnt) etqCnt = parsed.etqCnt;
+    rDash(); rKanban(); rOrcs(); rEquipe();
+    await salvarNuvem();
+    toast('Versão restaurada e salva!');
+    console.log('✅ Versão restaurada com sucesso!');
+  } catch(e) { console.error('Erro ao restaurar:', e); }
+}
+
 // Antes de salvar por inatividade (ex: trocar de aba), também verifica atualização
 document.addEventListener('visibilitychange', () => {
   if(document.visibilityState === 'visible') {
