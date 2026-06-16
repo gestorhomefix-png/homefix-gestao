@@ -612,6 +612,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
       <div class="tab" onclick="swTab(this,'t-fotos')">📷 Fotos</div>
       <div class="tab" onclick="swTab(this,'t-coment')">💬 Comentários</div>
       <div class="tab" onclick="swTab(this,'t-docs')">📄 Documentos</div>
+      <div class="tab" onclick="swTab(this,'t-anexos')">📎 Anexos</div>
     </div>
     <div class="tabc on" id="t-info"></div>
     <div class="tabc" id="t-fotos">
@@ -647,6 +648,16 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
         <button class="doc-big" onclick="gerarDoc('lp')">✅<br><span style="font-size:9px">Laudo Pós-Serviço</span></button>
       </div>
       <div id="doc-list"></div>
+    </div>
+    <div class="tabc" id="t-anexos">
+      <div style="font-size:11px;color:var(--g4);margin-bottom:10px;line-height:1.5">Arquivos de apoio (prints, PDFs, fotos de aprovação, comprovantes...). Esses anexos ficam guardados aqui e <b>não entram</b> nos orçamentos ou laudos gerados.</div>
+      <div class="foto-drop" onclick="document.getElementById('anexo-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleAnexoDrop(event)">
+        <div style="font-size:26px;margin-bottom:6px">📎</div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:3px">Clique ou arraste arquivos aqui</div>
+        <div style="font-size:10px;color:var(--g4)">Imagens, PDFs ou outros documentos</div>
+      </div>
+      <input type="file" id="anexo-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" multiple style="display:none" onchange="handleAnexoInput(event)"/>
+      <div id="anexo-list" style="margin-top:12px"></div>
     </div>
   </div>
   <div class="mof">
@@ -1077,7 +1088,7 @@ function kCardHTML(c,colId){
     <div class="kcard-sub">👤 ${c.nome}<span style="color:var(--g4)"> · ${c.imob}</span></div>
     ${thumbs?`<div style="display:flex;gap:3px;margin-bottom:6px">${thumbs}</div>`:''}
     <div class="kcard-foot">
-      <div>${c.coments.length?`<span class="kci">💬${c.coments.length}</span>`:''} ${c.docs.length?`<span class="kci">📄${c.docs.length}</span>`:''} ${allFotos.length?`<span class="kci">📷${allFotos.length}</span>`:''}</div>
+      <div>${c.coments.length?`<span class="kci">💬${c.coments.length}</span>`:''} ${c.docs.length?`<span class="kci">📄${c.docs.length}</span>`:''} ${allFotos.length?`<span class="kci">📷${allFotos.length}</span>`:''} ${(c.anexos&&c.anexos.length)?`<span class="kci">📎${c.anexos.length}</span>`:''}</div>
       <div style="display:flex;align-items:center;gap:3px"><div class="udot" style="background:${URGCOR[c.urg]||'#d1d5db'}"></div><span style="font-size:9px;color:var(--g4)">${URGTXT[c.urg]||''}</span></div>
     </div>
     ${c.criadoEm?`<div style="font-size:8px;color:var(--g4);margin-top:4px;border-top:1px solid var(--g2);padding-top:3px;">🕐 ${c.criadoEm}</div>`:''}
@@ -1095,7 +1106,7 @@ function verCard(id){
     <div class="det-hi">${c.ticket||c.numimov} — ${c.predio||''}</div>
     <div class="det-hb">${etqsHtml}<span class="det-hbd">👤 ${c.nome}</span><span class="det-hbd">📱 ${c.tel}</span><span class="det-hbd">${URGTXT[c.urg]||c.urg}</span></div>`;
   rInfoTab(c,col);
-  rComents(c);rDocs(c);rFotoGrid(c);
+  rComents(c);rDocs(c);rFotoGrid(c);rAnexoList(c);
   gi('m-det').querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   gi('m-det').querySelectorAll('.tabc').forEach((t,i)=>t.classList.toggle('on',i===0));
   const btnArq=gi('btn-arquivar');if(btnArq)btnArq.textContent=c.arquivado?'📤 Restaurar':'📁 Arquivar';
@@ -1792,6 +1803,61 @@ function handleFotoDrop(e,grupo){
   addFotos(e.dataTransfer.files,grupo);
 }
 function handleFotoInput(e,grupo){addFotos(e.target.files,grupo);}
+
+// ── ANEXOS (arquivos de apoio, não entram nos documentos gerados) ──
+function rAnexoList(c){
+  if(!c.anexos)c.anexos=[];
+  const el=gi('anexo-list');if(!el)return;
+  el.innerHTML=c.anexos.length?c.anexos.map((a,i)=>{
+    const isImg=a.tipo&&a.tipo.startsWith('image/');
+    const icone=isImg?'🖼️':(a.tipo&&a.tipo.includes('pdf')?'📕':(a.tipo&&(a.tipo.includes('word')||a.nome.endsWith('.doc')||a.nome.endsWith('.docx'))?'📄':(a.tipo&&(a.tipo.includes('sheet')||a.nome.endsWith('.xls')||a.nome.endsWith('.xlsx'))?'📊':'📎')));
+    return `<div class="doc-item">
+      <div style="flex:1;display:flex;align-items:center;gap:10px;cursor:pointer;overflow:hidden" onclick="verAnexo('${c.id}',${i})">
+        ${isImg?`<img src="${a.dados}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">`:`<div style="width:36px;height:36px;border-radius:6px;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${icone}</div>`}
+        <div style="overflow:hidden">
+          <div style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.nome}</div>
+          <div style="font-size:10px;color:var(--g4)">${a.dt}</div>
+        </div>
+      </div>
+      <button class="btn bg bxs" style="color:var(--red)" onclick="delAnexo('${c.id}',${i})" title="Excluir">🗑</button>
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:16px;color:var(--g4);font-size:11px">Nenhum anexo adicionado.</div>';
+}
+function handleAnexoDrop(e){
+  e.preventDefault();e.currentTarget.classList.remove('drag');
+  addAnexos(e.dataTransfer.files);
+}
+function handleAnexoInput(e){addAnexos(e.target.files);}
+function addAnexos(files){
+  const c=getCard(detId);if(!c)return;
+  if(!c.anexos)c.anexos=[];
+  Array.from(files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      c.anexos.push({nome:f.name,tipo:f.type,dados:ev.target.result,dt:new Date().toLocaleDateString('pt-BR')});
+      rAnexoList(c);toast('Anexo adicionado!');
+      if(typeof agendarSalvamento==='function')agendarSalvamento();
+    };
+    r.readAsDataURL(f);
+  });
+}
+function delAnexo(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  if(confirm('Excluir este anexo?')){
+    c.anexos.splice(idx,1);rAnexoList(c);toast('Anexo excluído.');
+    if(typeof agendarSalvamento==='function')agendarSalvamento();
+  }
+}
+function verAnexo(cid,idx){
+  const c=getCard(cid);if(!c)return;
+  const a=c.anexos[idx];if(!a)return;
+  if(a.tipo&&(a.tipo.startsWith('image/')||a.tipo.includes('pdf'))){
+    window.open(a.dados,'_blank');
+  } else {
+    const link=document.createElement('a');
+    link.href=a.dados;link.download=a.nome;link.click();
+  }
+}
 function addFotos(files,grupo){
   const c=getCard(detId);if(!c)return;
   if(!c.fotosAntes)c.fotosAntes=c.fotos||[];
@@ -1884,7 +1950,7 @@ function salvarOS(){
   const hoje=new Date().toLocaleDateString('pt-BR');
   const agora=new Date();
   const criadoEm=agora.toLocaleDateString('pt-BR')+' '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  col.cards.unshift({id,tipo:osTipo,ticket:gv('os-ticket')||(osTipo+' '+gv('os-numimov')),numimov:gv('os-numimov'),predio:gv('os-predio'),end:gv('os-end'),nome:gv('os-nome')||'—',tel:gv('os-tel'),imob:gv('os-imob'),resp:gv('os-resp'),oque:gv('os-oque'),urg:selUrg,etqs:[...selEtqs],fotos:[],fotosAntes:[],fotosDepois:[],coments:[],docs:[],data:hoje,criadoEm});
+  col.cards.unshift({id,tipo:osTipo,ticket:gv('os-ticket')||(osTipo+' '+gv('os-numimov')),numimov:gv('os-numimov'),predio:gv('os-predio'),end:gv('os-end'),nome:gv('os-nome')||'—',tel:gv('os-tel'),imob:gv('os-imob'),resp:gv('os-resp'),oque:gv('os-oque'),urg:selUrg,etqs:[...selEtqs],fotos:[],fotosAntes:[],fotosDepois:[],coments:[],docs:[],anexos:[],data:hoje,criadoEm});
   closeM('m-os');toast('OS criada em: '+col.name);rDash();rKanban();
 }
 
