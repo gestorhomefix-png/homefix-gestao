@@ -579,7 +579,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   </div>
   <div class="ag-toolbar">
     <button class="btn bg bxs" onclick="agendaNav(-1)">‹</button>
-    <div class="ag-titulo" id="ag-titulo">Junho 2026</div>
+    <div class="ag-titulo" id="ag-titulo" onclick="abrirSeletorMesAno()" style="cursor:pointer" title="Clique para ir direto a um mês/ano">Junho 2026</div>
     <button class="btn bg bxs" onclick="agendaNav(1)">›</button>
     <button class="btn bg bxs" onclick="agendaHoje()" style="margin-left:auto">Hoje</button>
   </div>
@@ -619,7 +619,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 
 <!-- EQUIPE -->
 <div class="content page" id="p-equipe">
-  <div class="sr"><div class="st">Prestadores</div><button class="btn bp bsm" onclick="openM('m-tech')">+ Adicionar</button></div>
+  <div class="sr"><div class="st">Prestadores</div><button class="btn bp bsm" onclick="abrirNovoTech()">+ Adicionar</button></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="eq-grid"></div>
 </div>
 
@@ -929,13 +929,26 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 
 <!-- MODAL PRESTADOR -->
 <div class="ov" id="m-tech"><div class="mo">
-  <div class="moh"><div class="mot">Adicionar Prestador</div><button class="mox" onclick="closeM('m-tech')">✕</button></div>
+  <div class="moh"><div class="mot" id="m-tech-title">Adicionar Prestador</div><button class="mox" onclick="closeM('m-tech')">✕</button></div>
   <div class="mob">
+    <div class="fl" style="text-align:center">
+      <label class="lb" style="display:block;margin-bottom:8px">Foto</label>
+      <div id="te-foto-preview" onclick="document.getElementById('te-foto-input').click()" style="width:84px;height:84px;border-radius:50%;background:var(--g1);border:2px dashed var(--g2);margin:0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:24px;color:var(--g4)">📷</div>
+      <input type="file" id="te-foto-input" accept="image/*" style="display:none" onchange="handleTechFoto(event)"/>
+      <div style="font-size:10px;color:var(--g4);margin-top:6px">Clique para escolher uma foto</div>
+    </div>
     <div class="fr"><div class="fl"><label class="lb">Nome</label><input class="fi" id="te-nome" placeholder="Nome completo"/></div>
     <div class="fl"><label class="lb">Especialidade</label><select class="fs" id="te-esp"><option>Multidisciplinar</option><option>Elétrica</option><option>Hidráulica</option><option>Pintura</option><option>Alvenaria</option><option>Ar Condicionado</option></select></div></div>
-    <div class="fl"><label class="lb">Telefone</label><input class="fi" id="te-tel" placeholder="(47) 99999-9999"/></div>
+    <div class="fr"><div class="fl"><label class="lb">Telefone</label><input class="fi" id="te-tel" placeholder="(47) 99999-9999"/></div>
+    <div class="fl"><label class="lb">CPF</label><input class="fi" id="te-cpf" placeholder="000.000.000-00"/></div></div>
+    <div class="fl"><label class="lb">Endereço</label><input class="fi" id="te-end" placeholder="Rua, número, bairro — cidade"/></div>
   </div>
-  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-tech')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarTech()">Adicionar</button></div>
+  <div class="mof">
+    <button class="btn bg bsm" id="te-del-btn" style="display:none;color:var(--red)" onclick="excluirTech()">🗑 Excluir</button>
+    <div style="flex:1"></div>
+    <button class="btn bg bsm" onclick="closeM('m-tech')">Cancelar</button>
+    <button class="btn bp bsm" onclick="salvarTech()">Salvar</button>
+  </div>
 </div></div>
 
 <!-- MODAL AGENDAMENTO -->
@@ -1026,11 +1039,7 @@ let orcs=[
   {id:'ORC-002',tipo:'RSC',imob:'ADIM Imóveis',imovel:'Apto 201 Ed. Atlântico',cli:'Ana Lima',valor:1850,status:'aprovado',data:'09/06/2025'},
   {id:'ORC-003',tipo:'MNT',imob:'Casa Certa',imovel:'Casa R. das Flores 220',cli:'Carlos Mendes',valor:720,status:'aguardando',data:'12/06/2025'},
 ];
-let techs=[
-  {id:1,nome:'Carlos Silva',esp:'Multidisciplinar',tel:'(47) 99123-4567',status:'ativo',conc:14,av:'#924310'},
-  {id:2,nome:'Roberto Lima',esp:'Hidráulica',tel:'(47) 98765-4321',status:'ocupado',conc:9,av:'#373d31'},
-  {id:3,nome:'Marcos Souza',esp:'Pintura',tel:'(47) 99456-7890',status:'ativo',conc:17,av:'#1a6fa8'},
-];
+let techs=[];
 
 // dados iniciais
 cols[1].cards=[{id:'k1',tipo:'MNT',ticket:'MNT TICKET 2200',numimov:'14198/2519',criadoEm:'10/06/2026 09:00',predio:'ADIM',end:'Av. Brasil, 302 — BC',nome:'João Pereira',tel:'(47) 99111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Problemas elétricos na sala',urg:'urgente',etqs:['e1','e7'],fotos:[],coments:[{a:'Administrativo',dt:'Hoje 09:00',t:'Entrei em contato, aguardando retorno.'}],docs:[]}];
@@ -1049,7 +1058,7 @@ cols[7].cards=[
 cols[8].cards=[{id:'k8',tipo:'MNT',ticket:'MNT TICKET 1893',numimov:'13450/2108',predio:'ADIM',end:'Rua M, 305 — BC',nome:'Claudia Nunes',tel:'(47) 96666-5555',imob:'Casa Certa Imóveis',resp:'Ricardo Souza',oque:'Troca tomadas queimadas',urg:'media',etqs:['e2'],fotos:[],coments:[{a:'Administrativo',dt:'Hoje 11:00',t:'Carlos iniciou o serviço.'}],docs:[]}];
 cols[10].cards=[{id:'k9',tipo:'MNT',ticket:'MNT ticket 2244',numimov:'13457/2778',predio:'ADIM',end:'Rua K, 88 — BC',nome:'Fernanda Lima',tel:'(47) 91111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Reparo elétrico',urg:'normal',etqs:['e3'],fotos:[],coments:[],docs:[{tipo:'lp',label:'Laudo Pós-Serviço',dt:'10/06/2025'}]}];
 
-let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='';
+let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='',teEditId=null;
 let colCnt=12,cardCnt=20,orcCnt=4,etqCnt=9,agCnt=1;
 let agendamentos=[]; // {id, cardId, tipo:'visita'|'execucao', data:'AAAA-MM-DD', hora:'HH:MM', techId, obs, status:'agendado'|'concluido'|'cancelado'}
 
@@ -2320,6 +2329,19 @@ function agendaNav(dir){
   rAgenda();
 }
 function agendaHoje(){agendaDataRef=new Date();rAgenda();}
+function abrirSeletorMesAno(){
+  const anoAtual=agendaDataRef.getFullYear(),mesAtual=agendaDataRef.getMonth();
+  const anoEscolhido=prompt('Ir para qual ano? (ex: '+(anoAtual+1)+')',anoAtual);
+  if(anoEscolhido===null)return;
+  const ano=parseInt(anoEscolhido,10);
+  if(isNaN(ano))return;
+  const mesEscolhido=prompt('Mês (1 a 12)?',mesAtual+1);
+  if(mesEscolhido===null)return;
+  const mes=parseInt(mesEscolhido,10);
+  if(isNaN(mes)||mes<1||mes>12)return;
+  agendaDataRef=new Date(ano,mes-1,1);
+  rAgenda();
+}
 
 function getAgendamentosDoDia(iso){
   return agendamentos.filter(a=>{
@@ -2600,27 +2622,91 @@ function excluirAgendamento(){
 }
 
 function rEquipe(){
-  const sm={ativo:'#d1fae5',ocupado:'#fef3cd',offline:'var(--g2)'};
-  const sc={ativo:'#065f46',ocupado:'#92400e',offline:'var(--g6)'};
-  const st={ativo:'Disponível',ocupado:'Em campo',offline:'Offline'};
-  gi('eq-grid').innerHTML=techs.map(t=>`<div style="background:#fff;border-radius:10px;padding:16px;border:1px solid var(--g2)">
+  if(!techs.length){
+    gi('eq-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--g4);font-size:13px">Nenhum prestador cadastrado ainda.<br><button class="btn bp bsm" style="margin-top:12px" onclick="abrirNovoTech()">+ Adicionar Prestador</button></div>';
+    return;
+  }
+  gi('eq-grid').innerHTML=techs.map(t=>{
+    const fotoHtml=t.foto?`<img src="${t.foto}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0">`:`<div style="width:48px;height:48px;border-radius:50%;background:${t.av};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${ini(t.nome)}</div>`;
+    return `<div style="background:#fff;border-radius:10px;padding:16px;border:1px solid var(--g2)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <div style="width:40px;height:40px;border-radius:50%;background:${t.av};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">${ini(t.nome)}</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:800">${t.nome}</div><div style="font-size:10px;color:var(--g6)">${t.esp}</div></div>
-      <span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;background:${sm[t.status]};color:${sc[t.status]}">${st[t.status]}</span>
+      ${fotoHtml}
+      <div style="flex:1;overflow:hidden"><div style="font-size:13px;font-weight:800">${t.nome}</div><div style="font-size:10px;color:var(--g6)">${t.esp}</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px">
-      <div style="text-align:center;background:var(--g1);border-radius:8px;padding:7px"><div style="font-size:16px;font-weight:900">${t.conc}</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase">Concluídas</div></div>
-      <div style="text-align:center;background:var(--g1);border-radius:8px;padding:7px"><div style="font-size:16px;font-weight:900">★4.8</div><div style="font-size:9px;color:var(--g4);text-transform:uppercase">Avaliação</div></div>
+    <div style="font-size:10px;color:var(--g6);padding-top:9px;border-top:1px solid var(--g2);line-height:1.7">
+      📱 ${t.tel||'—'}<br>
+      🪪 ${t.cpf||'—'}<br>
+      📍 ${t.end||'—'}
     </div>
-    <div style="font-size:10px;color:var(--g6);padding-top:9px;border-top:1px solid var(--g2)">📱 ${t.tel}</div>
-  </div>`).join('');
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <button class="btn bg bxs" style="flex:1" onclick="editarTech(${t.id})">✏️ Editar</button>
+      <button class="btn bg bxs" style="color:var(--red)" onclick="excluirTechRapido(${t.id})">🗑</button>
+    </div>
+  </div>`;
+  }).join('');
 }
+
+function handleTechFoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    window._teFotoTemp=ev.target.result;
+    gi('te-foto-preview').innerHTML=`<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  r.readAsDataURL(file);
+}
+
+function abrirNovoTech(){
+  teEditId=null;
+  gi('m-tech-title').textContent='Adicionar Prestador';
+  gi('te-del-btn').style.display='none';
+  window._teFotoTemp=null;
+  gi('te-foto-preview').innerHTML='📷';
+  ['te-nome','te-tel','te-cpf','te-end'].forEach(i=>sv(i,''));
+  sv('te-esp','Multidisciplinar');
+  openM('m-tech');
+}
+
+function editarTech(id){
+  const t=techs.find(x=>x.id===id);if(!t)return;
+  teEditId=id;
+  gi('m-tech-title').textContent='Editar Prestador';
+  gi('te-del-btn').style.display='block';
+  window._teFotoTemp=t.foto||null;
+  gi('te-foto-preview').innerHTML=t.foto?`<img src="${t.foto}" style="width:100%;height:100%;object-fit:cover">`:'📷';
+  sv('te-nome',t.nome);sv('te-esp',t.esp);sv('te-tel',t.tel||'');sv('te-cpf',t.cpf||'');sv('te-end',t.end||'');
+  openM('m-tech');
+}
+
 function salvarTech(){
   const n=gv('te-nome');if(!n){alert('Informe o nome');return;}
   const CORES=['#924310','#373d31','#724223','#1a6fa8','#1e7a45','#8e44ad'];
-  techs.push({id:techs.length+1,nome:n,esp:gv('te-esp'),tel:gv('te-tel')||'—',status:'ativo',conc:0,av:CORES[techs.length%CORES.length]});
-  closeM('m-tech');['te-nome','te-tel'].forEach(i=>sv(i,''));toast(n+' adicionado!');rEquipe();
+  if(teEditId){
+    const t=techs.find(x=>x.id===teEditId);
+    if(t){Object.assign(t,{nome:n,esp:gv('te-esp'),tel:gv('te-tel')||'—',cpf:gv('te-cpf')||'',end:gv('te-end')||'',foto:window._teFotoTemp||t.foto||null});}
+    toast(n+' atualizado!');
+  } else {
+    techs.push({id:Date.now(),nome:n,esp:gv('te-esp'),tel:gv('te-tel')||'—',cpf:gv('te-cpf')||'',end:gv('te-end')||'',foto:window._teFotoTemp||null,av:CORES[techs.length%CORES.length]});
+    toast(n+' adicionado!');
+  }
+  closeM('m-tech');rEquipe();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+}
+
+function excluirTech(){
+  if(!teEditId)return;
+  if(!confirm('Excluir este prestador? Esta ação não pode ser desfeita.'))return;
+  techs=techs.filter(x=>x.id!==teEditId);
+  closeM('m-tech');toast('Prestador excluído.');rEquipe();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+}
+
+function excluirTechRapido(id){
+  const t=techs.find(x=>x.id===id);if(!t)return;
+  if(!confirm('Excluir '+t.nome+'? Esta ação não pode ser desfeita.'))return;
+  techs=techs.filter(x=>x.id!==id);
+  toast('Prestador excluído.');rEquipe();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
 }
 
 
