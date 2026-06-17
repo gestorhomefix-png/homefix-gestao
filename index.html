@@ -3190,14 +3190,10 @@ function mostrarErro(msg) {
 
 // Verificar se já tem sessão ativa
 (function verificarSessao() {
-  const token = sessionStorage.getItem('hf_token');
-  if(token) {
-    document.getElementById('login-screen').style.display = 'none';
-  } else {
-    // Esconde app até logar
-    document.querySelector('.sb') && (document.querySelector('.sb').style.visibility = 'hidden');
-    document.querySelector('.main') && (document.querySelector('.main').style.visibility = 'hidden');
-  }
+  // LOGIN TEMPORARIAMENTE DESATIVADO (erro de conexão com o Supabase Auth) — acesso liberado direto.
+  document.getElementById('login-screen').style.display = 'none';
+  document.querySelector('.sb') && (document.querySelector('.sb').style.visibility = 'visible');
+  document.querySelector('.main') && (document.querySelector('.main').style.visibility = 'visible');
 })();
 
 </script>
