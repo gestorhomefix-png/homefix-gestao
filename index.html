@@ -629,7 +629,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 <!-- MODAL NOVA OS -->
 <div class="ov" id="m-os">
 <div class="mo">
-  <div class="moh"><div class="mot" id="m-os-title">Nova OS</div><button class="mox" onclick="closeM('m-os')">✕</button></div>
+  <div class="moh"><div class="mot" id="m-os-title">Nova OS</div><button class="mox" onclick="fecharNovaOS()">✕</button></div>
   <div class="mob">
     <div class="fl">
       <label class="lb">Tipo</label>
@@ -640,31 +640,31 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     </div>
     <div class="fsect">Imóvel</div>
     <div class="fr" style="margin-bottom:10px;">
-      <div class="fl" style="margin:0"><label class="lb">Nº Imóvel / Contrato</label><input class="fi" id="os-numimov" placeholder="Ex: 11740/2460"/></div>
-      <div class="fl" style="margin:0"><label class="lb">Prédio / Referência</label><input class="fi" id="os-predio" placeholder="Ex: ADIM APTO 402"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Nº Imóvel / Contrato</label><input class="fi" id="os-numimov" placeholder="Ex: 11740/2460" oninput="salvarRascunhoOS()"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Prédio / Referência</label><input class="fi" id="os-predio" placeholder="Ex: ADIM APTO 402" oninput="salvarRascunhoOS()"/></div>
     </div>
     <div class="fl">
       <label class="lb">Endereço</label>
       <div class="ac-wrap">
-        <input class="fi" id="os-end" placeholder="Digite o endereço..." autocomplete="off" oninput="acSearch(this.value,'ac-os')"/>
+        <input class="fi" id="os-end" placeholder="Digite o endereço..." autocomplete="off" oninput="acSearch(this.value,'ac-os');salvarRascunhoOS()"/>
         <div class="ac-list" id="ac-os"></div>
       </div>
     </div>
     <div class="fsect">Locatário</div>
     <div class="fr" style="margin-bottom:10px;">
-      <div class="fl" style="margin:0"><label class="lb" id="lbl-inq">Inquilino</label><input class="fi" id="os-nome" placeholder="Nome completo"/></div>
-      <div class="fl" style="margin:0"><label class="lb">Contato</label><input class="fi" id="os-tel" placeholder="(47) 99999-9999"/></div>
+      <div class="fl" style="margin:0"><label class="lb" id="lbl-inq">Inquilino</label><input class="fi" id="os-nome" placeholder="Nome completo" oninput="salvarRascunhoOS()"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Contato</label><input class="fi" id="os-tel" placeholder="(47) 99999-9999" oninput="salvarRascunhoOS()"/></div>
     </div>
     <div class="fsect">Imobiliária</div>
     <div class="fr" style="margin-bottom:10px;">
-      <div class="fl" style="margin:0"><label class="lb">Imobiliária</label><input class="fi" id="os-imob" placeholder="Nome da imobiliária"/></div>
-      <div class="fl" style="margin:0"><label class="lb">Responsável</label><input class="fi" id="os-resp" placeholder="Nome do responsável"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Imobiliária</label><input class="fi" id="os-imob" placeholder="Nome da imobiliária" oninput="salvarRascunhoOS()"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Responsável</label><input class="fi" id="os-resp" placeholder="Nome do responsável" oninput="salvarRascunhoOS()"/></div>
     </div>
     <div class="fr" style="margin-bottom:10px;">
-      <div class="fl" style="margin:0"><label class="lb">Nº Ticket / OS</label><input class="fi" id="os-ticket" placeholder="Ex: MNT TICKET 2200"/></div>
-      <div class="fl" style="margin:0"><label class="lb">Coluna</label><select class="fs" id="os-col"></select></div>
+      <div class="fl" style="margin:0"><label class="lb">Nº Ticket / OS</label><input class="fi" id="os-ticket" placeholder="Ex: MNT TICKET 2200" oninput="salvarRascunhoOS()"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Coluna</label><select class="fs" id="os-col" onchange="salvarRascunhoOS()"></select></div>
     </div>
-    <div class="fl"><label class="lb">O que precisa ser feito</label><textarea class="ft" id="os-oque" placeholder="Descreva o problema..."></textarea></div>
+    <div class="fl"><label class="lb">O que precisa ser feito</label><textarea class="ft" id="os-oque" placeholder="Descreva o problema..." oninput="salvarRascunhoOS()"></textarea></div>
     <div class="fl">
       <label class="lb">Urgência</label>
       <div class="urg-row">
@@ -678,9 +678,9 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     <div class="fl"><label class="lb">Etiquetas</label><div id="etq-new"></div></div>
   </div>
   <div class="mof">
-    <button class="btn bg bsm" onclick="closeM('m-os')">Cancelar</button>
+    <div id="os-draft-ind" style="font-size:10px;color:var(--g4);align-self:center"></div>
     <div style="flex:1"></div>
-    <button class="btn bp bsm" onclick="salvarOS()">Criar OS</button>
+    <button class="btn bp bsm" onclick="fecharNovaOS()">Concluído</button>
   </div>
 </div>
 </div>
@@ -875,8 +875,9 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     </div>
   </div>
   <div class="mof">
-    <button class="btn bg bsm" onclick="closeM('m-orc')">Fechar</button>
+    <div id="orc-draft-ind" style="font-size:10px;color:var(--g4);align-self:center"></div>
     <div style="flex:1"></div>
+    <button class="btn bg bsm" onclick="closeM('m-orc')">Fechar</button>
     <button class="btn bp bsm" onclick="salvarOrc()">Salvar Orçamento</button>
   </div>
 </div>
@@ -893,7 +894,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     <div class="lsect"><div class="lsect-t">Problemas Identificados</div><textarea class="ft" id="lv-prob" rows="3" placeholder="Descreva os problemas..."></textarea></div>
     <div class="lsect"><div class="lsect-t">Conclusão</div><textarea class="ft" id="lv-conc" rows="2" placeholder="Conclusão e recomendações..."></textarea></div>
   </div>
-  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-lv')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarDoc('lv','Laudo de Visita')">Salvar</button></div>
+  <div class="mof"><div id="lv-draft-ind" style="font-size:10px;color:var(--g4);align-self:center"></div><div style="flex:1"></div><button class="btn bg bsm" onclick="closeM('m-lv')">Fechar</button><button class="btn bp bsm" onclick="salvarDoc('lv','Laudo de Visita')">Salvar</button></div>
 </div></div>
 
 <!-- MODAL LAUDO POS -->
@@ -924,7 +925,7 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     <!-- Checklist -->
     <div class="lsect"><div class="lsect-t" id="lp-check-title">Checklist Final</div><div id="lp-checklist"></div></div>
   </div>
-  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-lp')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarDoc('lp','Laudo Pós-Serviço')">💾 Salvar</button></div>
+  <div class="mof"><div id="lp-draft-ind" style="font-size:10px;color:var(--g4);align-self:center"></div><div style="flex:1"></div><button class="btn bg bsm" onclick="closeM('m-lp')">Fechar</button><button class="btn bp bsm" onclick="salvarDoc('lp','Laudo Pós-Serviço')">💾 Salvar</button></div>
 </div></div>
 
 <!-- MODAL PRESTADOR -->
@@ -1058,7 +1059,7 @@ cols[7].cards=[
 cols[8].cards=[{id:'k8',tipo:'MNT',ticket:'MNT TICKET 1893',numimov:'13450/2108',predio:'ADIM',end:'Rua M, 305 — BC',nome:'Claudia Nunes',tel:'(47) 96666-5555',imob:'Casa Certa Imóveis',resp:'Ricardo Souza',oque:'Troca tomadas queimadas',urg:'media',etqs:['e2'],fotos:[],coments:[{a:'Administrativo',dt:'Hoje 11:00',t:'Carlos iniciou o serviço.'}],docs:[]}];
 cols[10].cards=[{id:'k9',tipo:'MNT',ticket:'MNT ticket 2244',numimov:'13457/2778',predio:'ADIM',end:'Rua K, 88 — BC',nome:'Fernanda Lima',tel:'(47) 91111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Reparo elétrico',urg:'normal',etqs:['e3'],fotos:[],coments:[],docs:[{tipo:'lp',label:'Laudo Pós-Serviço',dt:'10/06/2025'}]}];
 
-let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='',teEditId=null;
+let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='',teEditId=null,osDraftId=null;
 let colCnt=12,cardCnt=20,orcCnt=4,etqCnt=9,agCnt=1;
 let agendamentos=[]; // {id, cardId, tipo:'visita'|'execucao', data:'AAAA-MM-DD', hora:'HH:MM', techId, obs, status:'agendado'|'concluido'|'cancelado'}
 
@@ -1504,7 +1505,7 @@ function lpGetChecklist(items){
 
 function gerarDoc(tipo){
   if(tipo==='orc'){
-    orcEditId=null;
+    orcEditId=null;orcGlobalId=null;
     oiItems=[{id:1,desc:'',mdo:'',mat:''},{id:2,desc:'',mdo:'',mat:''}];
     const c=getCard(detId);
     if(c){
@@ -1520,8 +1521,9 @@ function gerarDoc(tipo){
     gi('orc-title').textContent='Novo Orçamento';gi('orc-sub').textContent='';
     sv('oc-data',new Date().toISOString().split('T')[0]);
   }
-  else if(tipo==='lv'){sv('lv-data',new Date().toISOString().split('T')[0]);['lv-tec','lv-prob','lv-conc'].forEach(i=>sv(i,''));closeM('m-det');openM('m-lv');}
+  else if(tipo==='lv'){lvDraftIdx=null;sv('lv-data',new Date().toISOString().split('T')[0]);['lv-tec','lv-prob','lv-conc'].forEach(i=>sv(i,''));closeM('m-det');openM('m-lv');}
   else if(tipo==='lp'){
+    lpDraftIdx=null;
     const c=getCard(detId);
     sv('lp-data',new Date().toISOString().split('T')[0]);
     ['lp-prest','lp-serv','lp-obs','lp-problema','lp-servicos-rsc'].forEach(i=>sv(i,''));
@@ -1558,12 +1560,21 @@ function gerarDoc(tipo){
     closeM('m-det');openM('m-lp');
   }
 }
-function salvarDoc(tipo,label){
+// Índices de rascunho para Laudo de Visita e Laudo Pós-Serviço (por card, durante a sessão aberta).
+// Evita duplicar documentos quando o autosave roda várias vezes seguidas.
+let lvDraftIdx=null,lpDraftIdx=null;
+function salvarDoc(tipo,label,silencioso){
   const c=getCard(detId);if(!c)return;
   const dt=new Date().toLocaleDateString('pt-BR');
   let extra={};
-  if(tipo==='lv')extra={data:gv('lv-data'),tec:gv('lv-tec'),prob:gv('lv-prob'),conc:gv('lv-conc')};
+  if(tipo==='lv'){
+    const temAlgo=gv('lv-tec')||gv('lv-prob')||gv('lv-conc');
+    if(!temAlgo&&silencioso)return;
+    extra={data:gv('lv-data'),tec:gv('lv-tec'),prob:gv('lv-prob'),conc:gv('lv-conc')};
+  }
   if(tipo==='lp'){
+    const temAlgo=gv('lp-prest')||gv('lp-problema')||gv('lp-serv')||gv('lp-servicos-rsc')||gv('lp-obs')||gv('lp-valor');
+    if(!temAlgo&&silencioso)return;
     const checkItems=c.tipo==='RSC'?LP_CHECK_RSC:LP_CHECK_MNT;
     const valorNum=parseFloat((gv('lp-valor')||'0').replace(/\./g,'').replace(',','.'))||0;
     extra={
@@ -1577,9 +1588,26 @@ function salvarDoc(tipo,label){
     };
   }
   const doc={tipo,label,dt,val:extra.valorFinal||0,...extra};
-  c.docs.push(doc);
-  closeM('m-'+tipo);rDocs(c);rDash();toast(label+' salvo no cartão!');
-  verDoc(c.id,c.docs.length-1);
+
+  if(tipo==='lv'){
+    if(lvDraftIdx!=null&&c.docs[lvDraftIdx]){c.docs[lvDraftIdx]=doc;}
+    else{c.docs.push(doc);lvDraftIdx=c.docs.length-1;}
+  } else if(tipo==='lp'){
+    if(lpDraftIdx!=null&&c.docs[lpDraftIdx]){c.docs[lpDraftIdx]=doc;}
+    else{c.docs.push(doc);lpDraftIdx=c.docs.length-1;}
+  } else {
+    c.docs.push(doc);
+  }
+
+  rDocs(c);rDash();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+  if(silencioso){
+    const ind=gi(tipo+'-draft-ind');if(ind)ind.textContent='☁️ Salvo automaticamente';
+    return;
+  }
+  closeM('m-'+tipo);toast(label+' salvo no cartão!');
+  const idxFinal=tipo==='lv'?lvDraftIdx:(tipo==='lp'?lpDraftIdx:c.docs.length-1);
+  verDoc(c.id,idxFinal!=null?idxFinal:c.docs.length-1);
 }
 
 // ── GERAR PDF LAUDO PÓS-SERVIÇO (RPS) ──
@@ -2103,7 +2131,7 @@ function rEtqNaOS(){
     <span style="font-size:12px;font-weight:600">${e.nome}</span>
   </div>`).join('');
 }
-function tgEtqNew(id,el){if(selEtqs.includes(id))selEtqs=selEtqs.filter(x=>x!==id);else selEtqs.push(id);el.classList.toggle('on');el.textContent=el.classList.contains('on')?'✓':'';}
+function tgEtqNew(id,el){if(selEtqs.includes(id))selEtqs=selEtqs.filter(x=>x!==id);else selEtqs.push(id);el.classList.toggle('on');el.textContent=el.classList.contains('on')?'✓':'';salvarRascunhoOS();}
 
 // ── NOVA OS ──
 function setOSTipo(t){
@@ -2111,32 +2139,62 @@ function setOSTipo(t){
   gi('ot-mnt').style.cssText=t==='MNT'?'color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8;':'';
   gi('ot-rsc').style.cssText=t==='RSC'?'color:#7c3aed;background:#f3e8ff;border-color:#7c3aed;':'';
   gi('lbl-inq').textContent=t==='MNT'?'Inquilino':'Cliente / Locatário';
+  salvarRascunhoOS();
 }
 function setUrg(el){
   gi('m-os').querySelectorAll('.urg-row .uopt').forEach(x=>{x.classList.remove('on');x.style.background='';x.style.borderColor='';});
   el.classList.add('on');selUrg=el.dataset.u;
   const styles={urgente:'background:#fee2e2;border-color:#b91c1c',alta:'background:#fee2e2;border-color:#b91c1c',media:'background:#fef3cd;border-color:#92400e',baixa:'background:#d1fae5;border-color:#065f46',normal:'background:var(--g2);border-color:var(--g4)'};
   el.style.cssText=(styles[selUrg]||'');
+  salvarRascunhoOS();
 }
 function openNewCard(colId){
-  selEtqs=[];selUrg='alta';osTipo='MNT';
+  selEtqs=[];selUrg='alta';osTipo='MNT';osDraftId=null;
   ['os-numimov','os-predio','os-end','os-nome','os-tel','os-imob','os-resp','os-ticket','os-oque'].forEach(i=>sv(i,''));
   setOSTipo('MNT');
+  gi('m-os-title').textContent='Nova OS';
+  gi('os-draft-ind').textContent='';
   gi('m-os').querySelectorAll('.urg-row .uopt').forEach(x=>{x.classList.remove('on');x.style.cssText='';});
   const ab=gi('m-os').querySelector('[data-u="alta"]');if(ab){ab.classList.add('on');ab.style.cssText='background:#fee2e2;border-color:#b91c1c';}
   if(colId&&gi('os-col'))gi('os-col').value=colId;
   rEtqNaOS();openM('m-os');
 }
-function salvarOS(){
-  const iv=gv('os-numimov')||gv('os-predio');if(!iv){alert('Informe o Nº do imóvel ou prédio');return;}
-  const colId=gv('os-col');const col=cols.find(c=>c.id===colId)||cols[0];
-  const id='k'+(++cardCnt);
-  const hoje=new Date().toLocaleDateString('pt-BR');
-  const agora=new Date();
-  const criadoEm=agora.toLocaleDateString('pt-BR')+' '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  col.cards.unshift({id,tipo:osTipo,ticket:gv('os-ticket')||(osTipo+' '+gv('os-numimov')),numimov:gv('os-numimov'),predio:gv('os-predio'),end:gv('os-end'),nome:gv('os-nome')||'—',tel:gv('os-tel'),imob:gv('os-imob'),resp:gv('os-resp'),oque:gv('os-oque'),urg:selUrg,etqs:[...selEtqs],fotos:[],fotosAntes:[],fotosDepois:[],coments:[],docs:[],anexos:[],data:hoje,criadoEm});
-  closeM('m-os');toast('OS criada em: '+col.name);rDash();rKanban();
+
+// Cria a OS automaticamente na primeira letra digitada (rascunho real, já visível no kanban),
+// e nas digitações seguintes apenas atualiza os mesmos dados. Fechar o modal em qualquer
+// momento não perde nada — a OS já existe desde a primeira tecla.
+let _rascunhoTimer=null;
+function salvarRascunhoOS(){
+  clearTimeout(_rascunhoTimer);
+  _rascunhoTimer=setTimeout(()=>{
+    const temAlgo=gv('os-numimov')||gv('os-predio')||gv('os-nome')||gv('os-ticket')||gv('os-oque')||gv('os-end')||gv('os-imob');
+    if(!temAlgo)return; // não cria OS vazia
+    const colId=gv('os-col');const col=cols.find(c=>c.id===colId)||cols[0];
+    const dados={tipo:osTipo,ticket:gv('os-ticket')||(osTipo+' '+gv('os-numimov')),numimov:gv('os-numimov'),predio:gv('os-predio'),end:gv('os-end'),nome:gv('os-nome')||'—',tel:gv('os-tel'),imob:gv('os-imob'),resp:gv('os-resp'),oque:gv('os-oque'),urg:selUrg,etqs:[...selEtqs]};
+    if(!osDraftId){
+      const id='k'+(++cardCnt);
+      const hoje=new Date().toLocaleDateString('pt-BR');
+      const agora=new Date();
+      const criadoEm=agora.toLocaleDateString('pt-BR')+' '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      col.cards.unshift({id,...dados,fotos:[],fotosAntes:[],fotosDepois:[],coments:[],docs:[],anexos:[],data:hoje,criadoEm});
+      osDraftId=id;
+      gi('m-os-title').textContent='Nova OS (salva automaticamente)';
+      rDash();rKanban();
+    } else {
+      const c=getCard(osDraftId);
+      if(c)Object.assign(c,dados);
+      rDash();rKanban();
+    }
+    gi('os-draft-ind').textContent='☁️ Salvo automaticamente';
+    if(typeof agendarSalvamento==='function')agendarSalvamento();
+  },500);
 }
+
+function fecharNovaOS(){
+  closeM('m-os');
+  if(osDraftId)toast('OS salva!');
+}
+
 
 // ── COLUNAS ──
 function addCol(){const n=prompt('Nome da nova coluna:');if(!n)return;cols.push({id:'col'+(++colCnt),name:n.toUpperCase(),cards:[]});rKanban();toast('Coluna criada!');}
@@ -2201,7 +2259,7 @@ function setOrcTipo(t){
 }
 function abrirOrc(fromCard){
   if(!fromCard)detId=null;
-  orcEditId=null;oiItems=[{id:1,desc:'',mdo:'',mat:''},{id:2,desc:'',mdo:'',mat:''}];
+  orcEditId=null;orcGlobalId=null;oiItems=[{id:1,desc:'',mdo:'',mat:''},{id:2,desc:'',mdo:'',mat:''}];
   gi('orc-title').textContent='Novo Orçamento';gi('orc-sub').textContent='';
   sv('oc-num','ORC-'+String(orcCnt).padStart(3,'0'));
   sv('oc-data',new Date().toISOString().split('T')[0]);
@@ -2251,28 +2309,53 @@ function rOI(){
   </div>`).join('');
   calcOI();
 }
-function salvarOrc(){
-  if(!orcTipo){toast('Selecione MNT ou RSC');return;}
+// Cria/atualiza o orçamento como rascunho a cada digitação — nunca duplica.
+// orcEditId quando não-null aponta pro índice em c.docs; orcGlobalId aponta pro registro em orcs[].
+let orcGlobalId=null;
+function salvarOrc(silencioso){
+  if(!orcTipo){if(!silencioso)toast('Selecione MNT ou RSC');return;}
   const total=calcOI(),hoje=new Date().toLocaleDateString('pt-BR');
   const c=detId?getCard(detId):null;
-  if(c&&!c.fotosAntes)c.fotosAntes=c.fotos||[];
-  if(c&&!c.fotosDepois)c.fotosDepois=[];
+  if(silencioso&&!c)return; // autosave silencioso só funciona quando há uma OS vinculada
+  if(c){
+    if(!c.fotosAntes)c.fotosAntes=c.fotos||[];
+    if(!c.fotosDepois)c.fotosDepois=[];
+  }
+  const temAlgo=gv('oc-num')||gv('oc-imovel')||gv('oc-cli')||gv('oc-diag')||oiItems.some(i=>i.desc||i.mdo||i.mat);
+  if(!temAlgo&&silencioso)return; // não cria rascunho vazio
   const orcData={tipo:'orc',label:'Orçamento',dt:hoje,val:total,num:gv('oc-num'),subtipo:orcTipo,imob:gv('oc-imob'),cuid:gv('oc-cuid'),imovel:gv('oc-imovel'),cli:gv('oc-cli'),cont:gv('oc-cont'),diag:gv('oc-diag'),itens:oiItems.map(i=>({desc:i.desc,mdo:i.mdo,mat:i.mat})),prazo:gv('oc-prazo'),gar:gv('oc-gar'),pgto:gv('oc-pgto'),obs:gv('oc-obs'),fotosAntes:c?[...c.fotosAntes]:[]};
-  if(detId&&c){
+
+  if(c){
     if(orcEditId!=null&&c.docs[orcEditId]){
       c.docs[orcEditId]=orcData;
     } else {
       c.docs.push(orcData);
+      orcEditId=c.docs.length-1;
     }
   }
-  if(orcEditId==null){
+
+  if(orcGlobalId){
+    const og=orcs.find(o=>o.id===orcGlobalId);
+    if(og)Object.assign(og,{tipo:orcTipo,imob:gv('oc-imob'),imovel:gv('oc-imovel')||'—',cli:gv('oc-cli')||'—',valor:total});
+  } else {
     const id='ORC-'+String(orcCnt++).padStart(3,'0');
     orcs.unshift({id,tipo:orcTipo,imob:gv('oc-imob'),imovel:gv('oc-imovel')||'—',cli:gv('oc-cli')||'—',valor:total,status:'aguardando',data:hoje});
+    orcGlobalId=id;
   }
-  const wasEdit=orcEditId!=null;
-  orcEditId=null;
-  closeM('m-orc');toast(wasEdit?'Orçamento atualizado!':'Orçamento salvo!');rOrcs();rDash();
-  if(detId&&c){const idx=wasEdit?(c.docs.length-1>=0?c.docs.indexOf(orcData):0):c.docs.length-1;rDocs(c);verDoc(c.id,c.docs.indexOf(orcData));}
+
+  if(c)rDocs(c);rOrcs();rDash();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+  if(!silencioso){
+    closeM('m-orc');toast('Orçamento salvo!');
+    if(c)verDoc(c.id,orcEditId);
+  } else {
+    gi('orc-draft-ind')&&(gi('orc-draft-ind').textContent='☁️ Salvo automaticamente');
+  }
+}
+let _orcRascunhoTimer=null;
+function salvarRascunhoOrc(){
+  clearTimeout(_orcRascunhoTimer);
+  _orcRascunhoTimer=setTimeout(()=>salvarOrc(true),500);
 }
 
 // ── EDITAR ORÇAMENTO ──
@@ -2281,6 +2364,7 @@ function editarOrc(cid,idx){
   const d=c.docs[idx];if(!d||d.tipo!=='orc')return;
   document.getElementById('m-doc-view')?.remove();
   orcEditId=idx;detId=cid;
+  orcGlobalId=orcs.find(o=>o.imovel===d.imovel&&o.cli===d.cli&&o.valor===d.val)?.id||null;
   oiItems=(d.itens||[]).map((it,i)=>({id:i+1,desc:it.desc,mdo:it.mdo,mat:it.mat}));
   if(!oiItems.length)oiItems=[{id:1,desc:'',mdo:'',mat:''}];
   setOrcTipo(d.subtipo||'MNT');
@@ -3022,6 +3106,33 @@ setInterval(async () => {
     }
   } catch(e) {}
 }, 20000);
+
+// ── AUTOSAVE: Orçamento e Laudos ──
+// Qualquer digitação dentro desses modais já salva automaticamente, sem precisar
+// clicar em "Salvar" — assim fechar o modal a qualquer momento nunca perde nada.
+['m-orc'].forEach(modalId=>{
+  const modal=gi(modalId);
+  if(modal){
+    modal.addEventListener('input',e=>{if(e.target.matches('input,textarea'))salvarRascunhoOrc();});
+    modal.addEventListener('change',e=>{if(e.target.matches('select'))salvarRascunhoOrc();});
+  }
+});
+let _lvRascunhoTimer=null;
+function salvarRascunhoLv(){clearTimeout(_lvRascunhoTimer);_lvRascunhoTimer=setTimeout(()=>salvarDoc('lv','Laudo de Visita',true),500);}
+let _lpRascunhoTimer=null;
+function salvarRascunhoLp(){clearTimeout(_lpRascunhoTimer);_lpRascunhoTimer=setTimeout(()=>salvarDoc('lp','Laudo Pós-Serviço',true),500);}
+(function(){
+  const mlv=gi('m-lv');
+  if(mlv)mlv.addEventListener('input',e=>{if(e.target.matches('input,textarea'))salvarRascunhoLv();});
+  const mlp=gi('m-lp');
+  if(mlp){
+    mlp.addEventListener('input',e=>{if(e.target.matches('input,textarea')&&e.target.id!=='lp-valor')salvarRascunhoLp();});
+    mlp.addEventListener('click',e=>{if(e.target.closest('.check-box'))setTimeout(salvarRascunhoLp,100);});
+  }
+})();
+// formatarValorLP já existe e formata o campo lp-valor; também precisa disparar o autosave
+const _origFormatarValorLP=formatarValorLP;
+formatarValorLP=function(el){_origFormatarValorLP(el);salvarRascunhoLp();};
 
 // Inicializar
 (async function init() {
