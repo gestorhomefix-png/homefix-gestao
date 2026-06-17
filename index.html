@@ -81,6 +81,25 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
 .leg-v{font-weight:800;color:var(--g8);}
 
 /* KANBAN */
+/* ── AGENDA ── */
+.ag-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ag-titulo{font-size:15px;font-weight:800;color:var(--g8);min-width:140px;text-align:center;}
+.ag-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.ag-dow{font-size:10px;font-weight:800;color:var(--g4);text-align:center;text-transform:uppercase;letter-spacing:.5px;padding:4px 0;}
+.ag-cell{background:#fff;border:1.5px solid var(--g2);border-radius:8px;min-height:88px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:border-color .1s;}
+.ag-cell:hover{border-color:var(--t);}
+.ag-cell.outside{opacity:.35;}
+.ag-cell.today{border-color:var(--t);border-width:2px;background:#fdf6f0;}
+.ag-cell-num{font-size:11px;font-weight:800;color:var(--g7);}
+.ag-cell.today .ag-cell-num{color:var(--t);}
+.ag-evt{font-size:9px;font-weight:700;border-radius:4px;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ag-evt-visita{background:#dbeafe;color:#1d4ed8;}
+.ag-evt-execucao{background:#fef3c7;color:#92400e;}
+.ag-evt-mais{font-size:8px;color:var(--g4);font-weight:700;padding-left:5px;}
+.ag-dia-item{background:#fff;border:1.5px solid var(--g2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;}
+.ag-dia-hora{font-size:14px;font-weight:800;color:var(--g);min-width:52px;}
+.ag-dia-info{flex:1;}
+.ag-dia-tipo{display:inline-block;font-size:9px;font-weight:800;border-radius:20px;padding:2px 9px;margin-bottom:4px;}
 .kb-page{display:none;flex-direction:column;height:calc(100vh - 50px);overflow:hidden;}
 .kb-page.on{display:flex;}
 .kb-toolbar{padding:12px 20px 10px;background:var(--g1);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -356,6 +375,17 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   /* Equipe / prestadores: grid 1 coluna */
   #eq-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
 
+  /* AGENDA mobile */
+  .ag-toolbar { flex-wrap: wrap; gap: 8px; }
+  .ag-titulo { font-size: 13px; min-width: 0; flex: 1; }
+  .ag-grid { gap: 4px; }
+  .ag-cell { min-height: 56px; padding: 4px; border-radius: 6px; }
+  .ag-cell-num { font-size: 10px; }
+  .ag-evt { font-size: 7.5px; padding: 1px 3px; }
+  .ag-dow { font-size: 8px; padding: 2px 0; }
+  .ag-dia-item { padding: 10px; gap: 8px; }
+  .ag-dia-hora { font-size: 12px; min-width: 42px; }
+
   /* PREVIEW / VISUALIZADOR de documentos e anexos */
   .lsect img { max-width: 100%; }
 
@@ -365,9 +395,6 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   .mob-nav-item .mn-ic { font-size: 19px; line-height: 1; }
   .mob-nav-item.on { color: var(--t); }
   .mob-nav-item.on .mn-ic { filter: drop-shadow(0 0 3px rgba(146,67,16,.5)); }
-
-  /* Importar trello */
-  #p-importar .tw { padding: 14px !important; }
 
   /* Toast */
   .toast { left: 12px !important; right: 12px !important; bottom: 76px !important; width: auto !important; max-width: none !important; }
@@ -421,10 +448,10 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
     <div class="sb-sec">Principal</div>
     <div class="ni on" onclick="nav('dash',this)"><span class="ni-ic">▦</span>Dashboard</div>
     <div class="ni" onclick="nav('kanban',this)"><span class="ni-ic">☰</span>Serviços<span class="nb" id="nb-os">0</span></div>
+    <div class="ni" onclick="nav('agenda',this)"><span class="ni-ic">📅</span>Agenda</div>
     <div class="ni" onclick="nav('orc',this)"><span class="ni-ic">💰</span>Orçamentos<span class="nb" id="nb-orc">0</span></div>
     <div class="sb-sec">Config</div>
     <div class="ni" onclick="nav('equipe',this)"><span class="ni-ic">👷</span>Prestadores</div>
-    <div class="ni" onclick="nav('importar',this)"><span class="ni-ic">📥</span>Importar Trello</div>
   </div>
   <div class="sb-user">
     <div class="uav">GC</div>
@@ -441,6 +468,9 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   </button>
   <button class="mob-nav-item on" id="mn-lista" onclick="mobNav('lista-mob',this)">
     <span class="mn-ic">☰</span>Serviços
+  </button>
+  <button class="mob-nav-item" id="mn-agenda" onclick="mobNav('agenda',this)">
+    <span class="mn-ic">📅</span>Agenda
   </button>
   <button class="mob-nav-item" id="mn-orc" onclick="mobNav('orc',this)">
     <span class="mn-ic">💰</span>Orçamentos
@@ -537,6 +567,26 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   <div id="mob-os-lista"></div>
 </div>
 
+<!-- AGENDA -->
+<div class="content page" id="p-agenda">
+  <div class="sr">
+    <div class="st">Agenda</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="btn bp bsm" id="ag-view-mes" onclick="setAgendaView('mes')">📅 Mês</button>
+      <button class="btn bg bsm" id="ag-view-dia" onclick="setAgendaView('dia')">📋 Dia</button>
+      <button class="btn bp bsm" onclick="abrirNovoAgendamento()">+ Agendar</button>
+    </div>
+  </div>
+  <div class="ag-toolbar">
+    <button class="btn bg bxs" onclick="agendaNav(-1)">‹</button>
+    <div class="ag-titulo" id="ag-titulo">Junho 2026</div>
+    <button class="btn bg bxs" onclick="agendaNav(1)">›</button>
+    <button class="btn bg bxs" onclick="agendaHoje()" style="margin-left:auto">Hoje</button>
+  </div>
+  <div id="ag-mes-view"></div>
+  <div id="ag-dia-view" style="display:none"></div>
+</div>
+
 <!-- ORÇAMENTOS -->
 <div class="content page" id="p-orc">
   <div class="sr">
@@ -573,31 +623,8 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="eq-grid"></div>
 </div>
 
-<!-- IMPORTAR -->
-<div class="content page" id="p-importar">
-  <div class="sr"><div class="st">Importar do Trello</div></div>
-  <div class="tw" style="padding:20px;">
-    <p style="font-size:13px;color:var(--g6);margin-bottom:16px;line-height:1.6;">Exporte o quadro do Trello em JSON e importe aqui. Os cartões e colunas chegam automaticamente.</p>
-    <div style="background:var(--g1);border-radius:9px;padding:14px;margin-bottom:16px;border-left:3px solid var(--t);">
-      <div style="font-size:12px;font-weight:800;color:var(--g8);margin-bottom:5px;">Como exportar do Trello:</div>
-      <ol style="font-size:12px;color:var(--g6);padding-left:18px;line-height:1.8;">
-        <li>Abra o quadro no Trello</li>
-        <li>Clique em "..." (menu) no canto superior direito</li>
-        <li>Vá em <strong>Mais → Imprimir e exportar</strong></li>
-        <li>Clique em <strong>Exportar como JSON</strong></li>
-        <li>Importe o arquivo abaixo</li>
-      </ol>
-    </div>
-    <div class="foto-drop" onclick="document.getElementById('import-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
-      <div style="font-size:32px;margin-bottom:8px;">📥</div>
-      <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Clique ou arraste o arquivo JSON do Trello</div>
-      <div style="font-size:11px;color:var(--g4);">Arquivo .json exportado do Trello</div>
-    </div>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importTrello(event)"/>
-    <div id="import-result"></div>
-  </div>
-</div>
 </div><!-- /main -->
+
 
 <!-- MODAL NOVA OS -->
 <div class="ov" id="m-os">
@@ -885,6 +912,47 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   <div class="mof"><button class="btn bg bsm" onclick="closeM('m-tech')">Cancelar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="salvarTech()">Adicionar</button></div>
 </div></div>
 
+<!-- MODAL AGENDAMENTO -->
+<div class="ov" id="m-agenda"><div class="mo">
+  <div class="moh"><div class="mot" id="m-agenda-title">Novo Agendamento</div><button class="mox" onclick="closeM('m-agenda')">✕</button></div>
+  <div class="mob">
+    <div class="fl">
+      <label class="lb">OS / Serviço</label>
+      <div class="ac-wrap">
+        <input class="fi" id="ag-os-busca" placeholder="Buscar por ticket, cliente, imóvel..." autocomplete="off" oninput="agOsSearch(this.value)"/>
+        <div class="ac-list" id="ag-os-list"></div>
+      </div>
+      <div id="ag-os-sel" style="margin-top:8px;display:none;background:var(--g1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--g7)"></div>
+    </div>
+    <div class="fl">
+      <label class="lb">Tipo de Agendamento</label>
+      <div style="display:flex;gap:8px">
+        <button class="uopt on" id="ag-tipo-visita" onclick="setAgTipo('visita')" style="color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8">🔍 Visita</button>
+        <button class="uopt" id="ag-tipo-execucao" onclick="setAgTipo('execucao')">🔧 Execução de Serviço</button>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fl" style="margin:0"><label class="lb">Data</label><input class="fi" id="ag-data" type="date"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Horário</label><input class="fi" id="ag-hora" type="time"/></div>
+    </div>
+    <div class="fl"><label class="lb">Prestador</label><select class="fs" id="ag-tech"></select></div>
+    <div class="fl"><label class="lb">Observações</label><textarea class="ft" id="ag-obs" placeholder="Detalhes do agendamento..."></textarea></div>
+  </div>
+  <div class="mof">
+    <button class="btn bg bsm" id="ag-del-btn" style="display:none;color:var(--red)" onclick="excluirAgendamento()">🗑 Excluir</button>
+    <div style="flex:1"></div>
+    <button class="btn bg bsm" onclick="closeM('m-agenda')">Cancelar</button>
+    <button class="btn bp bsm" onclick="salvarAgendamento()">Salvar</button>
+  </div>
+</div></div>
+
+<!-- MODAL DETALHE DO DIA (lista de agendamentos de um dia) -->
+<div class="ov" id="m-agenda-dia"><div class="mo">
+  <div class="moh"><div class="mot" id="m-agenda-dia-title">Agendamentos</div><button class="mox" onclick="closeM('m-agenda-dia')">✕</button></div>
+  <div class="mob" id="m-agenda-dia-list"></div>
+  <div class="mof"><button class="btn bg bsm" onclick="closeM('m-agenda-dia')">Fechar</button><div style="flex:1"></div><button class="btn bp bsm" onclick="closeM('m-agenda-dia');abrirNovoAgendamento(agendaDiaSelecionado)">+ Agendar neste dia</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -952,7 +1020,8 @@ cols[8].cards=[{id:'k8',tipo:'MNT',ticket:'MNT TICKET 1893',numimov:'13450/2108'
 cols[10].cards=[{id:'k9',tipo:'MNT',ticket:'MNT ticket 2244',numimov:'13457/2778',predio:'ADIM',end:'Rua K, 88 — BC',nome:'Fernanda Lima',tel:'(47) 91111-2222',imob:'ADIM Imóveis',resp:'Fernanda Lima',oque:'Reparo elétrico',urg:'normal',etqs:['e3'],fotos:[],coments:[],docs:[{tipo:'lp',label:'Laudo Pós-Serviço',dt:'10/06/2025'}]}];
 
 let selEtqs=[],selUrg='alta',osTipo='MNT',orcTipo='MNT',detId=null,oiItems=[],orcEditId=null,kbFilter='all',dashFilter='all',dashImob='';
-let colCnt=12,cardCnt=20,orcCnt=4,etqCnt=9;
+let colCnt=12,cardCnt=20,orcCnt=4,etqCnt=9,agCnt=1;
+let agendamentos=[]; // {id, cardId, tipo:'visita'|'execucao', data:'AAAA-MM-DD', hora:'HH:MM', techId, obs, status:'agendado'|'concluido'|'cancelado'}
 
 // ── UTILS ──
 const gi=id=>document.getElementById(id);
@@ -1027,14 +1096,14 @@ function onDropZoneDrop(e,colId,idx){
 }
 
 // ── NAV ──
-const TITLES={dash:'Dashboard',kanban:'Serviços',orc:'Orçamentos',equipe:'Prestadores',importar:'Importar Trello'};
+const TITLES={dash:'Dashboard',kanban:'Serviços',orc:'Orçamentos',equipe:'Prestadores',agenda:'Agenda'};
 function nav(p,el){
   document.querySelectorAll('.page,.kb-page').forEach(x=>{x.classList.remove('on');});
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
   gi('p-'+p).classList.add('on');
   if(el)el.classList.add('on');
   gi('tb-title').textContent=TITLES[p]||p;
-  ({dash:rDash,kanban:rKanban,orc:rOrcs,equipe:rEquipe})[p]?.();
+  ({dash:rDash,kanban:rKanban,orc:rOrcs,equipe:rEquipe,agenda:rAgenda})[p]?.();
 }
 
 // ── DASHBOARD ──
@@ -2185,6 +2254,243 @@ function editarOrc(cid,idx){
 }
 
 // ── EQUIPE ──
+// ══════════ AGENDA ══════════
+let agendaViewMode='mes'; // 'mes' | 'dia'
+let agendaDataRef=new Date(); // mês/dia atualmente exibido
+let agendaDiaSelecionado=null; // 'AAAA-MM-DD' usado pelo modal de dia
+let agOsSelecionada=null; // card escolhido no modal de agendamento
+let agEditId=null; // id do agendamento em edição (null = novo)
+
+const MESES_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DOW_PT=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+function fmtDataISO(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function fmtDataBR(iso){
+  const[y,m,d]=iso.split('-');return `${d}/${m}/${y}`;
+}
+
+function setAgendaView(v){
+  agendaViewMode=v;
+  gi('ag-view-mes').className='btn bsm '+(v==='mes'?'bp':'bg');
+  gi('ag-view-dia').className='btn bsm '+(v==='dia'?'bp':'bg');
+  gi('ag-mes-view').style.display=v==='mes'?'block':'none';
+  gi('ag-dia-view').style.display=v==='dia'?'block':'none';
+  rAgenda();
+}
+function agendaNav(dir){
+  if(agendaViewMode==='mes'){
+    agendaDataRef=new Date(agendaDataRef.getFullYear(),agendaDataRef.getMonth()+dir,1);
+  } else {
+    agendaDataRef=new Date(agendaDataRef.getFullYear(),agendaDataRef.getMonth(),agendaDataRef.getDate()+dir);
+  }
+  rAgenda();
+}
+function agendaHoje(){agendaDataRef=new Date();rAgenda();}
+
+function getAgendamentosDoDia(iso){
+  return agendamentos.filter(a=>a.data===iso&&a.status!=='cancelado').sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+}
+function getCardDoAgendamento(ag){
+  return cols.flatMap(c=>c.cards).find(c=>c.id===ag.cardId);
+}
+function getTechNome(id){
+  const t=techs.find(x=>x.id===Number(id)||x.id===id);
+  return t?t.nome:'—';
+}
+
+function rAgenda(){
+  if(agendaViewMode==='mes')rAgendaMes();else rAgendaDia();
+}
+
+function rAgendaMes(){
+  const ano=agendaDataRef.getFullYear(),mes=agendaDataRef.getMonth();
+  gi('ag-titulo').textContent=MESES_PT[mes]+' '+ano;
+  const primeiroDia=new Date(ano,mes,1);
+  const inicioGrid=new Date(primeiroDia);
+  inicioGrid.setDate(1-primeiroDia.getDay()); // volta até domingo
+  const hoje=fmtDataISO(new Date());
+
+  let html='<div class="ag-grid">';
+  DOW_PT.forEach(d=>html+=`<div class="ag-dow">${d}</div>`);
+
+  for(let i=0;i<42;i++){
+    const dia=new Date(inicioGrid);dia.setDate(inicioGrid.getDate()+i);
+    const iso=fmtDataISO(dia);
+    const outside=dia.getMonth()!==mes;
+    const isToday=iso===hoje;
+    const evts=getAgendamentosDoDia(iso);
+    const evtsHtml=evts.slice(0,3).map(a=>{
+      const c=getCardDoAgendamento(a);
+      const label=(c?(c.ticket||c.numimov):'OS removida');
+      return `<div class="ag-evt ag-evt-${a.tipo}">${a.hora?a.hora+' ':''}${label}</div>`;
+    }).join('');
+    const maisHtml=evts.length>3?`<div class="ag-evt-mais">+${evts.length-3} mais</div>`:'';
+    html+=`<div class="ag-cell ${outside?'outside':''} ${isToday?'today':''}" onclick="abrirDiaDetalhe('${iso}')">
+      <div class="ag-cell-num">${dia.getDate()}</div>
+      ${evtsHtml}${maisHtml}
+    </div>`;
+  }
+  html+='</div>';
+  gi('ag-mes-view').innerHTML=html;
+}
+
+function rAgendaDia(){
+  const iso=fmtDataISO(agendaDataRef);
+  gi('ag-titulo').textContent=new Date(agendaDataRef).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+  const evts=getAgendamentosDoDia(iso);
+  if(!evts.length){
+    gi('ag-dia-view').innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--g4);font-size:13px">Nenhum agendamento neste dia.<br><button class="btn bp bsm" style="margin-top:12px" onclick="abrirNovoAgendamento(\''+iso+'\')">+ Agendar</button></div>';
+    return;
+  }
+  gi('ag-dia-view').innerHTML=evts.map(a=>{
+    const c=getCardDoAgendamento(a);
+    const tipoLabel=a.tipo==='visita'?'🔍 Visita':'🔧 Execução';
+    const tipoCor=a.tipo==='visita'?'background:#dbeafe;color:#1d4ed8':'background:#fef3c7;color:#92400e';
+    return `<div class="ag-dia-item" onclick="editarAgendamento('${a.id}')">
+      <div class="ag-dia-hora">${a.hora||'—'}</div>
+      <div class="ag-dia-info">
+        <span class="ag-dia-tipo" style="${tipoCor}">${tipoLabel}</span>
+        <div style="font-size:13px;font-weight:800;color:var(--g8)">${c?(c.ticket||c.numimov):'OS removida'}</div>
+        <div style="font-size:11px;color:var(--g6)">🏢 ${c?.predio||'—'} · 👤 ${c?.nome||'—'}</div>
+        <div style="font-size:11px;color:var(--g6)">👷 ${getTechNome(a.techId)}</div>
+        ${a.obs?`<div style="font-size:10px;color:var(--g4);margin-top:4px">${a.obs}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirDiaDetalhe(iso){
+  agendaDiaSelecionado=iso;
+  const evts=getAgendamentosDoDia(iso);
+  gi('m-agenda-dia-title').textContent='Agendamentos — '+fmtDataBR(iso);
+  if(!evts.length){
+    gi('m-agenda-dia-list').innerHTML='<div style="text-align:center;padding:24px;color:var(--g4);font-size:12px">Nenhum agendamento neste dia.</div>';
+  } else {
+    gi('m-agenda-dia-list').innerHTML=evts.map(a=>{
+      const c=getCardDoAgendamento(a);
+      const tipoLabel=a.tipo==='visita'?'🔍 Visita':'🔧 Execução';
+      const tipoCor=a.tipo==='visita'?'background:#dbeafe;color:#1d4ed8':'background:#fef3c7;color:#92400e';
+      return `<div class="ag-dia-item" onclick="closeM('m-agenda-dia');editarAgendamento('${a.id}')">
+        <div class="ag-dia-hora">${a.hora||'—'}</div>
+        <div class="ag-dia-info">
+          <span class="ag-dia-tipo" style="${tipoCor}">${tipoLabel}</span>
+          <div style="font-size:13px;font-weight:800;color:var(--g8)">${c?(c.ticket||c.numimov):'OS removida'}</div>
+          <div style="font-size:11px;color:var(--g6)">🏢 ${c?.predio||'—'} · 👷 ${getTechNome(a.techId)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  openM('m-agenda-dia');
+}
+
+function setAgTipo(t){
+  gi('ag-tipo-visita').classList.toggle('on',t==='visita');
+  gi('ag-tipo-execucao').classList.toggle('on',t==='execucao');
+  gi('ag-tipo-visita').style.cssText=t==='visita'?'color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8':'';
+  gi('ag-tipo-execucao').style.cssText=t==='execucao'?'color:#92400e;background:#fef3c7;border-color:#92400e':'';
+  window._agTipoSel=t;
+}
+
+function agOsSearch(q){
+  const list=gi('ag-os-list');
+  if(!q||q.length<2){list.innerHTML='';list.classList.remove('on');return;}
+  const ql=q.toLowerCase();
+  const all=cols.flatMap(c=>c.cards).filter(c=>!c.arquivado);
+  const matches=all.filter(c=>((c.ticket||'')+(c.numimov||'')+(c.nome||'')+(c.predio||'')+(c.imob||'')).toLowerCase().includes(ql)).slice(0,8);
+  if(!matches.length){list.innerHTML='<div class="ac-item" style="color:var(--g4)">Nenhuma OS encontrada</div>';list.classList.add('on');return;}
+  list.innerHTML=matches.map(c=>`<div class="ac-item" onclick="agOsEscolher('${c.id}')"><b>${c.ticket||c.numimov}</b> — ${c.predio||''} · ${c.nome||''}</div>`).join('');
+  list.classList.add('on');
+}
+function agOsEscolher(cid){
+  const c=getCard(cid);if(!c)return;
+  agOsSelecionada=c;
+  gi('ag-os-busca').value=c.ticket||c.numimov;
+  gi('ag-os-list').classList.remove('on');
+  gi('ag-os-sel').style.display='block';
+  gi('ag-os-sel').innerHTML=`<b>${c.ticket||c.numimov}</b><br>🏢 ${c.predio||'—'} · 👤 ${c.nome||'—'}<br>📱 ${c.imob||'—'}`;
+}
+
+function popularSelectTechs(){
+  const sel=gi('ag-tech');
+  sel.innerHTML='<option value="">Selecione um prestador</option>'+techs.map(t=>`<option value="${t.id}">${t.nome} (${t.esp})</option>`).join('');
+}
+
+function abrirNovoAgendamento(isoPreSelecionado){
+  agEditId=null;agOsSelecionada=null;
+  gi('m-agenda-title').textContent='Novo Agendamento';
+  gi('ag-del-btn').style.display='none';
+  sv('ag-os-busca','');gi('ag-os-sel').style.display='none';gi('ag-os-list').innerHTML='';
+  setAgTipo('visita');
+  popularSelectTechs();
+  sv('ag-data',isoPreSelecionado||fmtDataISO(new Date()));
+  sv('ag-hora','09:00');
+  sv('ag-tech','');
+  sv('ag-obs','');
+  openM('m-agenda');
+}
+
+function editarAgendamento(id){
+  const a=agendamentos.find(x=>x.id===id);if(!a)return;
+  agEditId=id;
+  const c=getCardDoAgendamento(a);
+  agOsSelecionada=c||null;
+  gi('m-agenda-title').textContent='Editar Agendamento';
+  gi('ag-del-btn').style.display='block';
+  popularSelectTechs();
+  if(c){
+    sv('ag-os-busca',c.ticket||c.numimov);
+    gi('ag-os-sel').style.display='block';
+    gi('ag-os-sel').innerHTML=`<b>${c.ticket||c.numimov}</b><br>🏢 ${c.predio||'—'} · 👤 ${c.nome||'—'}<br>📱 ${c.imob||'—'}`;
+  } else {
+    sv('ag-os-busca','');gi('ag-os-sel').style.display='none';
+  }
+  setAgTipo(a.tipo);
+  sv('ag-data',a.data);
+  sv('ag-hora',a.hora||'');
+  sv('ag-tech',a.techId||'');
+  sv('ag-obs',a.obs||'');
+  openM('m-agenda');
+}
+
+function salvarAgendamento(){
+  if(!agOsSelecionada){toast('Selecione uma OS para agendar.');return;}
+  const data=gv('ag-data');
+  if(!data){toast('Selecione uma data.');return;}
+  const payload={
+    cardId:agOsSelecionada.id,
+    tipo:window._agTipoSel||'visita',
+    data,
+    hora:gv('ag-hora'),
+    techId:gv('ag-tech')?Number(gv('ag-tech')):null,
+    obs:gv('ag-obs'),
+    status:'agendado'
+  };
+  if(agEditId){
+    const a=agendamentos.find(x=>x.id===agEditId);
+    if(a)Object.assign(a,payload);
+    toast('Agendamento atualizado!');
+  } else {
+    agendamentos.push({id:'ag'+(++agCnt),...payload});
+    toast('Agendamento criado!');
+  }
+  closeM('m-agenda');
+  rAgenda();
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+}
+
+function excluirAgendamento(){
+  if(!agEditId)return;
+  if(!confirm('Excluir este agendamento?'))return;
+  agendamentos=agendamentos.filter(x=>x.id!==agEditId);
+  closeM('m-agenda');
+  rAgenda();
+  toast('Agendamento excluído.');
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+}
+
 function rEquipe(){
   const sm={ativo:'#d1fae5',ocupado:'#fef3cd',offline:'var(--g2)'};
   const sc={ativo:'#065f46',ocupado:'#92400e',offline:'var(--g6)'};
@@ -2209,37 +2515,6 @@ function salvarTech(){
   closeM('m-tech');['te-nome','te-tel'].forEach(i=>sv(i,''));toast(n+' adicionado!');rEquipe();
 }
 
-// ── IMPORTAR TRELLO ──
-function handleDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');processTrelloFile(e.dataTransfer.files[0]);}
-function importTrello(e){processTrelloFile(e.target.files[0]);}
-function processTrelloFile(file){
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const data=JSON.parse(ev.target.result);
-      const lists={};(data.lists||[]).forEach(l=>lists[l.id]=l.name.toUpperCase());
-      (data.lists||[]).forEach(l=>{
-        const name=l.name.toUpperCase();
-        if(!cols.find(c=>c.name===name))cols.push({id:'tl_'+l.id,name,cards:[]});
-      });
-      let imported=0;
-      (data.cards||[]).forEach(card=>{
-        if(card.closed)return;
-        const col=cols.find(c=>c.name===lists[card.idList])||cols[0];
-        const id='k'+(++cardCnt);
-        const tipo=card.name?.toUpperCase().includes('RSC')?'RSC':'MNT';
-        const cms=(card.actions||[]).filter(a=>a.type==='commentCard').map(a=>({a:a.memberCreator?.fullName||'Trello',dt:new Date(a.date).toLocaleDateString('pt-BR'),t:a.data?.text||''}));
-        col.cards.push({id,tipo,ticket:card.name||'',numimov:card.name||'',predio:card.name||'',end:'',nome:'',tel:'',imob:'Importado do Trello',resp:'',oque:card.desc||'',urg:'normal',etqs:[],fotos:[],coments:cms,docs:[],data:new Date(card.dateLastActivity).toLocaleDateString('pt-BR')});
-        imported++;
-      });
-      gi('import-result').innerHTML=`<div style="background:#d1fae5;border-radius:8px;padding:13px;border-left:3px solid #1e7a45;margin-top:10px"><div style="font-size:13px;font-weight:800;color:#065f46;margin-bottom:4px">✅ ${imported} cartões importados!</div><div style="font-size:12px;color:#065f46">Acesse Serviços para visualizar no Kanban.</div></div>`;
-      rDash();rKanban();toast(imported+' cartões importados do Trello!');
-    }catch(err){
-      gi('import-result').innerHTML=`<div style="background:#fee2e2;border-radius:8px;padding:13px;border-left:3px solid #c0392b;margin-top:10px"><div style="font-size:13px;font-weight:800;color:#b91c1c">❌ Erro ao importar — verifique se é um JSON do Trello.</div></div>`;
-    }
-  };reader.readAsText(file);
-}
 
 
 // ── MOBILE ──
@@ -2306,8 +2581,8 @@ function mobNav(p, el) {
     gi('tb-title').textContent = 'Serviços';
     rListaMob();
   } else {
-    const idx = ['dash','kanban','orc','equipe','importar'].indexOf(p);
-    nav(p, document.querySelectorAll('.ni')[idx >= 0 ? idx : 0]);
+    const targetNi = [...document.querySelectorAll('.ni')].find(n => n.getAttribute('onclick') === `nav('${p}',this)`);
+    nav(p, targetNi || document.querySelector('.ni'));
   }
   closeSidebar();
 }
@@ -2317,7 +2592,7 @@ const _origNav = nav;
 nav = function(p, el) {
   _origNav(p, el);
   if(isMob()) {
-    const map = {dash:'mn-dash', orc:'mn-orc', equipe:'mn-equipe'};
+    const map = {dash:'mn-dash', orc:'mn-orc', equipe:'mn-equipe', agenda:'mn-agenda'};
     document.querySelectorAll('.mob-nav-item').forEach(x => x.classList.remove('on'));
     if(map[p]) gi(map[p])?.classList.add('on');
   }
@@ -2342,6 +2617,7 @@ let syncTimer = null;
 let ultimoTsConhecido = 0;   // timestamp da última versão que vimos na nuvem
 let salvando = false;        // evita salvamentos simultâneos sobrepostos
 let pendenteResalvar = false;
+let mudancaPendente = false; // true entre uma ação do usuário e a confirmação de que já foi salva na nuvem
 
 async function supaGet(chave) {
   try {
@@ -2367,6 +2643,7 @@ async function supaSet(chave, valor) {
 }
 
 function agendarSalvamento() {
+  mudancaPendente = true;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(salvarNuvem, 1500);
 }
@@ -2384,9 +2661,10 @@ async function salvarNuvem() {
     if(raw) {
       try {
         const remoto = JSON.parse(raw);
-        if(remoto._ts && remoto._ts > ultimoTsConhecido) {
-          // Alguém (outra aba/dispositivo) salvou depois da nossa última leitura.
-          // Não sobrescreve às cegas: avisa e recarrega para não perder dados de ninguém.
+        // Só recarrega por cima das mudanças locais se NÃO houver uma ação do usuário
+        // ainda pendente de salvar. Se o usuário acabou de aprovar/editar algo agora,
+        // essa mudança local sempre tem prioridade — nunca descartamos a ação do usuário.
+        if(remoto._ts && remoto._ts > ultimoTsConhecido && !mudancaPendente) {
           if(ind) { ind.textContent = '🔄 Atualizando...'; ind.style.color = 'rgba(255,255,255,.7)'; }
           await carregarNuvem();
           toast('Dados atualizados por outro dispositivo — tela recarregada.');
@@ -2396,11 +2674,12 @@ async function salvarNuvem() {
         }
       } catch(e) {}
     }
-    // 2. Seguro para salvar: nossa cópia é a mais recente conhecida
+    // 2. Salva a versão local (que inclui a ação mais recente do usuário, se houver)
     const novoTs = Date.now();
-    const dados = JSON.stringify({ cols, orcs, techs, etqGlobal, orcCnt, cardCnt, etqCnt, _ts: novoTs });
+    const dados = JSON.stringify({ cols, orcs, techs, etqGlobal, orcCnt, cardCnt, etqCnt, agendamentos, agCnt, _ts: novoTs });
     await supaSet('homefix_dados', dados);
     ultimoTsConhecido = novoTs;
+    mudancaPendente = false;
     if(ind) { ind.textContent = '☁️ Salvo'; ind.style.color = '#1e7a45'; setTimeout(()=>{ if(ind)ind.textContent='☁️ Sync'; ind.style.color='rgba(255,255,255,.4)'; }, 2000); }
   } finally {
     salvando = false;
@@ -2422,6 +2701,8 @@ async function carregarNuvem() {
       if(d.orcCnt) orcCnt = d.orcCnt;
       if(d.cardCnt) cardCnt = d.cardCnt;
       if(d.etqCnt) etqCnt = d.etqCnt;
+      if(d.agendamentos) agendamentos = d.agendamentos;
+      if(d.agCnt) agCnt = d.agCnt;
       ultimoTsConhecido = d._ts || Date.now();
       if(ind) { ind.textContent = '☁️ Sync'; ind.style.color = 'rgba(255,255,255,.4)'; }
       rDash(); rKanban(); rOrcs(); rEquipe();
@@ -2479,6 +2760,8 @@ async function restaurarVersao(id) {
     if(parsed.orcCnt) orcCnt = parsed.orcCnt;
     if(parsed.cardCnt) cardCnt = parsed.cardCnt;
     if(parsed.etqCnt) etqCnt = parsed.etqCnt;
+    if(parsed.agendamentos) agendamentos = parsed.agendamentos;
+    if(parsed.agCnt) agCnt = parsed.agCnt;
     rDash(); rKanban(); rOrcs(); rEquipe();
     await salvarNuvem();
     toast('Versão restaurada e salva!');
@@ -2488,13 +2771,13 @@ async function restaurarVersao(id) {
 
 // Antes de salvar por inatividade (ex: trocar de aba), também verifica atualização
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible') {
+  if(document.visibilityState === 'visible' && !mudancaPendente) {
     // Ao voltar para a aba, verifica se há versão mais nova antes de continuar editando
     supaGet('homefix_dados').then(raw => {
       if(!raw) return;
       try {
         const remoto = JSON.parse(raw);
-        if(remoto._ts && remoto._ts > ultimoTsConhecido) {
+        if(remoto._ts && remoto._ts > ultimoTsConhecido && !mudancaPendente) {
           carregarNuvem();
           toast('Dados atualizados — recarregado com a versão mais recente.');
         }
@@ -2535,7 +2818,7 @@ salvarEtqs = function() { _origSalvarEtqs.apply(this, arguments); agendarSalvame
 // A cada 20s, verifica se há versão mais nova na nuvem (outro dispositivo salvou) e recarrega.
 // Não força gravação sem necessidade — assim várias telas abertas nunca se sobrescrevem.
 setInterval(async () => {
-  if(salvando) return;
+  if(salvando || mudancaPendente) return;
   const raw = await supaGet('homefix_dados');
   if(!raw) return;
   try {
