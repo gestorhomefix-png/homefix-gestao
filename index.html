@@ -692,12 +692,38 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
   <div style="padding:13px 20px 0;">
     <div class="tabs">
       <div class="tab on" onclick="swTab(this,'t-info')">📋 Informações</div>
+      <div class="tab" onclick="swTab(this,'t-agendamento')">📅 Agendamento</div>
       <div class="tab" onclick="swTab(this,'t-fotos')">📷 Fotos</div>
       <div class="tab" onclick="swTab(this,'t-coment')">💬 Comentários</div>
       <div class="tab" onclick="swTab(this,'t-docs')">📄 Documentos</div>
       <div class="tab" onclick="swTab(this,'t-anexos')">📎 Anexos</div>
     </div>
     <div class="tabc on" id="t-info"></div>
+    <div class="tabc" id="t-agendamento">
+      <div class="lsect">
+        <div class="lsect-t">🔍 Visita</div>
+        <div class="fr">
+          <div class="fl" style="margin:0"><label class="lb">Data da Visita</label><input class="fi" id="det-ag-visita-data" type="date" onchange="salvarAgendamentoDoCard()"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Horário</label><input class="fi" id="det-ag-visita-hora" type="time" onchange="salvarAgendamentoDoCard()"/></div>
+        </div>
+      </div>
+      <div class="lsect">
+        <div class="lsect-t">🔧 Execução do Serviço</div>
+        <div class="fr">
+          <div class="fl" style="margin:0"><label class="lb">Data de Início</label><input class="fi" id="det-ag-exec-data-ini" type="date" onchange="salvarAgendamentoDoCard()"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Horário de Início</label><input class="fi" id="det-ag-exec-hora-ini" type="time" onchange="salvarAgendamentoDoCard()"/></div>
+        </div>
+        <div class="fr">
+          <div class="fl" style="margin:0"><label class="lb">Data de Término (estimada)</label><input class="fi" id="det-ag-exec-data-fim" type="date" onchange="salvarAgendamentoDoCard()"/></div>
+          <div class="fl" style="margin:0"><label class="lb">Horário de Término (estimado)</label><input class="fi" id="det-ag-exec-hora-fim" type="time" onchange="salvarAgendamentoDoCard()"/></div>
+        </div>
+      </div>
+      <div class="lsect">
+        <div class="lsect-t">👷 Prestador e Observações</div>
+        <div class="fl"><label class="lb">Prestador</label><select class="fs" id="det-ag-tech" onchange="salvarAgendamentoDoCard()"></select></div>
+        <div class="fl"><label class="lb">Observações</label><textarea class="ft" id="det-ag-obs" oninput="salvarAgendamentoDoCard()" placeholder="Detalhes do agendamento..."></textarea></div>
+      </div>
+    </div>
     <div class="tabc" id="t-fotos">
       <div id="fotos-antes-wrap">
         <div class="lsect-t" style="margin-bottom:8px">📷 Fotos de Antes</div>
@@ -932,8 +958,12 @@ tr.rl:hover td{background:var(--g1);cursor:pointer;}
       </div>
     </div>
     <div class="fr">
-      <div class="fl" style="margin:0"><label class="lb">Data</label><input class="fi" id="ag-data" type="date"/></div>
-      <div class="fl" style="margin:0"><label class="lb">Horário</label><input class="fi" id="ag-hora" type="time"/></div>
+      <div class="fl" style="margin:0"><label class="lb" id="ag-data-label">Data</label><input class="fi" id="ag-data" type="date"/></div>
+      <div class="fl" style="margin:0"><label class="lb" id="ag-hora-label">Horário</label><input class="fi" id="ag-hora" type="time"/></div>
+    </div>
+    <div class="fr" id="ag-fim-wrap" style="display:none">
+      <div class="fl" style="margin:0"><label class="lb">Data de Término (estimada)</label><input class="fi" id="ag-data-fim" type="date"/></div>
+      <div class="fl" style="margin:0"><label class="lb">Horário de Término (estimado)</label><input class="fi" id="ag-hora-fim" type="time"/></div>
     </div>
     <div class="fl"><label class="lb">Prestador</label><select class="fs" id="ag-tech"></select></div>
     <div class="fl"><label class="lb">Observações</label><textarea class="ft" id="ag-obs" placeholder="Detalhes do agendamento..."></textarea></div>
@@ -1231,7 +1261,7 @@ function verCard(id){
     <div class="det-hi">${c.ticket||c.numimov} — ${c.predio||''}</div>
     <div class="det-hb">${etqsHtml}<span class="det-hbd">👤 ${c.nome}</span><span class="det-hbd">📱 ${c.tel}</span><span class="det-hbd">${URGTXT[c.urg]||c.urg}</span></div>`;
   rInfoTab(c,col);
-  rComents(c);rDocs(c);rFotoGrid(c);rAnexoList(c);
+  rComents(c);rDocs(c);rFotoGrid(c);rAnexoList(c);rAgendamentoDoCard(c);
   gi('m-det').querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   gi('m-det').querySelectorAll('.tabc').forEach((t,i)=>t.classList.toggle('on',i===0));
   const btnArq=gi('btn-arquivar');if(btnArq)btnArq.textContent=c.arquivado?'📤 Restaurar':'📁 Arquivar';
@@ -1331,6 +1361,7 @@ function arquivarCard(cid){
 function delCard(cid){
   if(!confirm('Excluir esta OS permanentemente? Esta ação não pode ser desfeita.'))return;
   cols.forEach(col=>{col.cards=col.cards.filter(k=>k.id!==cid);});
+  agendamentos=agendamentos.filter(a=>a.cardId!==cid);
   closeM('m-det');toast('OS excluída.');rDash();rKanban();
 }
 
@@ -2291,7 +2322,14 @@ function agendaNav(dir){
 function agendaHoje(){agendaDataRef=new Date();rAgenda();}
 
 function getAgendamentosDoDia(iso){
-  return agendamentos.filter(a=>a.data===iso&&a.status!=='cancelado').sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+  return agendamentos.filter(a=>{
+    if(a.status==='cancelado')return false;
+    if(a.tipo==='execucao'&&a.dataFim){
+      // execução com data de início e término: aparece em todos os dias do intervalo
+      return iso>=a.data&&iso<=a.dataFim;
+    }
+    return a.data===iso;
+  }).sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
 }
 function getCardDoAgendamento(ag){
   return cols.flatMap(c=>c.cards).find(c=>c.id===ag.cardId);
@@ -2349,6 +2387,7 @@ function rAgendaDia(){
     const c=getCardDoAgendamento(a);
     const tipoLabel=a.tipo==='visita'?'🔍 Visita':'🔧 Execução';
     const tipoCor=a.tipo==='visita'?'background:#dbeafe;color:#1d4ed8':'background:#fef3c7;color:#92400e';
+    const fimInfo=(a.tipo==='execucao'&&a.dataFim)?`<div style="font-size:10px;color:var(--g4)">Término estimado: ${fmtDataBR(a.dataFim)}${a.horaFim?' às '+a.horaFim:''}</div>`:'';
     return `<div class="ag-dia-item" onclick="editarAgendamento('${a.id}')">
       <div class="ag-dia-hora">${a.hora||'—'}</div>
       <div class="ag-dia-info">
@@ -2356,6 +2395,7 @@ function rAgendaDia(){
         <div style="font-size:13px;font-weight:800;color:var(--g8)">${c?(c.ticket||c.numimov):'OS removida'}</div>
         <div style="font-size:11px;color:var(--g6)">🏢 ${c?.predio||'—'} · 👤 ${c?.nome||'—'}</div>
         <div style="font-size:11px;color:var(--g6)">👷 ${getTechNome(a.techId)}</div>
+        ${fimInfo}
         ${a.obs?`<div style="font-size:10px;color:var(--g4);margin-top:4px">${a.obs}</div>`:''}
       </div>
     </div>`;
@@ -2391,6 +2431,9 @@ function setAgTipo(t){
   gi('ag-tipo-execucao').classList.toggle('on',t==='execucao');
   gi('ag-tipo-visita').style.cssText=t==='visita'?'color:#1d4ed8;background:#dbeafe;border-color:#1d4ed8':'';
   gi('ag-tipo-execucao').style.cssText=t==='execucao'?'color:#92400e;background:#fef3c7;border-color:#92400e':'';
+  gi('ag-fim-wrap').style.display=t==='execucao'?'flex':'none';
+  gi('ag-data-label').textContent=t==='execucao'?'Data de Início':'Data da Visita';
+  gi('ag-hora-label').textContent=t==='execucao'?'Horário de Início':'Horário';
   window._agTipoSel=t;
 }
 
@@ -2418,6 +2461,65 @@ function popularSelectTechs(){
   sel.innerHTML='<option value="">Selecione um prestador</option>'+techs.map(t=>`<option value="${t.id}">${t.nome} (${t.esp})</option>`).join('');
 }
 
+// ── AGENDAMENTO DENTRO DA OS (aba Agendamento) ──
+// Cada OS pode ter até 2 agendamentos vinculados: um do tipo 'visita' e um do tipo 'execucao'.
+// Essa função popula os campos da aba a partir do que já existe em agendamentos[].
+function rAgendamentoDoCard(c){
+  const selTech=gi('det-ag-tech');
+  if(!selTech)return;
+  selTech.innerHTML='<option value="">Selecione um prestador</option>'+techs.map(t=>`<option value="${t.id}">${t.nome} (${t.esp})</option>`).join('');
+
+  const visita=agendamentos.find(a=>a.cardId===c.id&&a.tipo==='visita'&&a.status!=='cancelado');
+  const exec=agendamentos.find(a=>a.cardId===c.id&&a.tipo==='execucao'&&a.status!=='cancelado');
+
+  sv('det-ag-visita-data',visita?.data||'');
+  sv('det-ag-visita-hora',visita?.hora||'');
+  sv('det-ag-exec-data-ini',exec?.data||'');
+  sv('det-ag-exec-hora-ini',exec?.hora||'');
+  sv('det-ag-exec-data-fim',exec?.dataFim||'');
+  sv('det-ag-exec-hora-fim',exec?.horaFim||'');
+
+  // Prestador e observações: prioriza o que estiver na execução, senão na visita
+  const techId=exec?.techId??visita?.techId??'';
+  const obs=exec?.obs||visita?.obs||'';
+  sv('det-ag-tech',techId);
+  sv('det-ag-obs',obs);
+}
+
+// Chamada a cada alteração de campo na aba Agendamento — cria/atualiza/remove
+// os agendamentos correspondentes e mantém tudo sincronizado com a Agenda geral.
+function salvarAgendamentoDoCard(){
+  const c=getCard(detId);if(!c)return;
+  const visitaData=gv('det-ag-visita-data');
+  const visitaHora=gv('det-ag-visita-hora');
+  const execDataIni=gv('det-ag-exec-data-ini');
+  const execHoraIni=gv('det-ag-exec-hora-ini');
+  const execDataFim=gv('det-ag-exec-data-fim');
+  const execHoraFim=gv('det-ag-exec-hora-fim');
+  const techId=gv('det-ag-tech')?Number(gv('det-ag-tech')):null;
+  const obs=gv('det-ag-obs');
+
+  // VISITA: só existe como agendamento se tiver pelo menos a data preenchida
+  let ag=agendamentos.find(a=>a.cardId===c.id&&a.tipo==='visita');
+  if(visitaData){
+    if(ag){Object.assign(ag,{data:visitaData,hora:visitaHora,techId,obs,status:'agendado'});}
+    else{agendamentos.push({id:'ag'+(++agCnt),cardId:c.id,tipo:'visita',data:visitaData,hora:visitaHora,techId,obs,status:'agendado'});}
+  } else if(ag){
+    agendamentos=agendamentos.filter(a=>a!==ag);
+  }
+
+  // EXECUÇÃO: só existe como agendamento se tiver pelo menos a data de início preenchida
+  let ag2=agendamentos.find(a=>a.cardId===c.id&&a.tipo==='execucao');
+  if(execDataIni){
+    if(ag2){Object.assign(ag2,{data:execDataIni,hora:execHoraIni,dataFim:execDataFim,horaFim:execHoraFim,techId,obs,status:'agendado'});}
+    else{agendamentos.push({id:'ag'+(++agCnt),cardId:c.id,tipo:'execucao',data:execDataIni,hora:execHoraIni,dataFim:execDataFim,horaFim:execHoraFim,techId,obs,status:'agendado'});}
+  } else if(ag2){
+    agendamentos=agendamentos.filter(a=>a!==ag2);
+  }
+
+  if(typeof agendarSalvamento==='function')agendarSalvamento();
+}
+
 function abrirNovoAgendamento(isoPreSelecionado){
   agEditId=null;agOsSelecionada=null;
   gi('m-agenda-title').textContent='Novo Agendamento';
@@ -2427,6 +2529,8 @@ function abrirNovoAgendamento(isoPreSelecionado){
   popularSelectTechs();
   sv('ag-data',isoPreSelecionado||fmtDataISO(new Date()));
   sv('ag-hora','09:00');
+  sv('ag-data-fim','');
+  sv('ag-hora-fim','');
   sv('ag-tech','');
   sv('ag-obs','');
   openM('m-agenda');
@@ -2450,6 +2554,8 @@ function editarAgendamento(id){
   setAgTipo(a.tipo);
   sv('ag-data',a.data);
   sv('ag-hora',a.hora||'');
+  sv('ag-data-fim',a.dataFim||'');
+  sv('ag-hora-fim',a.horaFim||'');
   sv('ag-tech',a.techId||'');
   sv('ag-obs',a.obs||'');
   openM('m-agenda');
@@ -2464,6 +2570,8 @@ function salvarAgendamento(){
     tipo:window._agTipoSel||'visita',
     data,
     hora:gv('ag-hora'),
+    dataFim:window._agTipoSel==='execucao'?gv('ag-data-fim'):'',
+    horaFim:window._agTipoSel==='execucao'?gv('ag-hora-fim'):'',
     techId:gv('ag-tech')?Number(gv('ag-tech')):null,
     obs:gv('ag-obs'),
     status:'agendado'
